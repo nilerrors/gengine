@@ -16,7 +16,7 @@ img::EasyImage generate_image(const ini::Configuration &configuration)
 
 	if (imageType == "2DLSystem")
 	{
-		handle2DLSystem(image, configuration["General"], configuration["2DLSystem"]);
+		image = Draw2DLSystem(configuration["General"], configuration["2DLSystem"]).drawLSystem();
 	}
 
 	return image;

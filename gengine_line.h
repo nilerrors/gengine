@@ -22,9 +22,26 @@ struct OuterMostPixels
 
 static OuterMostPixels calculate_outer_most_pixels(const Lines2D &lines);
 
-img::EasyImage draw2DLines(Lines2D &lines, int size, const Color &bgColor);
-Lines2D drawLSystem(const LParser::LSystem2D &lSystem, const Color &color);
-void handle2DLSystem(img::EasyImage &image, const ini::Section &generalConfig, const ini::Section &LSystem2DConfig);
+
+class Draw2DLSystem
+{
+public:
+	Draw2DLSystem(const ini::Section &generalConfig, const ini::Section &LSystem2DConfig);
+
+	void draw2DLines();
+	const img::EasyImage &drawLSystem();
+	void applyReplacement();
+
+private:
+	img::EasyImage image;
+	Lines2D lines;
+	std::string full_replacement;
+	LParser::LSystem2D l_system;
+
+	int size;
+	Color backgroundColor;
+	Color linesColor;
+};
 
 }
 

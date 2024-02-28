@@ -42,7 +42,7 @@ struct Color
 		blue = color[2];
 	}
 
-	Color(COLOR color)
+	explicit Color(COLOR color)
 	{
 		switch (color)
 		{
@@ -84,7 +84,9 @@ struct Color
 	img::Color to_img_color() const
 	{
 		// Convert the color from a value of in between 0 and 1 to a value between 0 and 255
-		return img::Color(red * 255, green * 255, blue * 255);
+		return { static_cast<uint8_t>(red * 255),
+				 static_cast<uint8_t>(green * 255),
+				 static_cast<uint8_t>(blue * 255) };
 	}
 };
 
@@ -141,7 +143,7 @@ struct Line2D
 	}
 };
 
-using Lines2D = std::list<Line2D>;
+using Lines2D = std::vector<Line2D>;
 
 double degToRad(double deg);
 
