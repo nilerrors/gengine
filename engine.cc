@@ -19,7 +19,6 @@ img::EasyImage generate_image(const ini::Configuration &configuration)
 		handle2DLSystem(image, configuration["General"], configuration["2DLSystem"]);
 	}
 
-
 	return image;
 }
 

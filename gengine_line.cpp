@@ -3,6 +3,8 @@
 //
 
 #include <cmath>
+#include <stack>
+#include <fstream>
 #include "gengine_line.h"
 
 using namespace gengine;
@@ -45,9 +47,6 @@ img::EasyImage gengine::draw2DLines(Lines2D& lines, int size, const Color &bgCol
 	double image_y = size * (y_range/fmax(x_range, y_range));
 	double scale_factor = 0.95 * (image_x / x_range);
 
-	std::cout << "image height " << image_x << std::endl;
-	std::cout << "image width " << image_y << std::endl;
-
 	img::EasyImage image(lround(image_x), lround(image_y));
 
 	double DC_x = scale_factor * (outer_most_pixels.min.x + outer_most_pixels.max.x) / 2;
@@ -55,15 +54,7 @@ img::EasyImage gengine::draw2DLines(Lines2D& lines, int size, const Color &bgCol
 	double d_x = (image_x / 2) - DC_x;
 	double d_y = (image_y / 2) - DC_y;
 
-	for (int i = 0; i < image.get_width(); i++)
-	{
-		for (int j = 0; j < image.get_height(); j++)
-		{
-			image(i, j).red = bgColor.to_img_color().red;
-			image(i, j).green = bgColor.to_img_color().green;
-			image(i, j).blue = bgColor.to_img_color().blue;
-		}
-	}
+	image.clear(bgColor.to_img_color());
 
 	for (auto &line : lines)
 	{
@@ -76,30 +67,106 @@ img::EasyImage gengine::draw2DLines(Lines2D& lines, int size, const Color &bgCol
 
 	for (const Line2D& line : lines)
 	{
-		image.draw_line(lround(line.p1.x), lround(line.p1.y), lround(line.p2.x), lround(line.p2.y), line.color.to_img_color());
+		image.draw_line(lround(line.p1.x), lround(line.p1.y),
+						lround(line.p2.x), lround(line.p2.y), line.color.to_img_color());
 	}
 
 	return image;
 }
 
-void gengine::handle2DLSystem(img::EasyImage &image, const ini::Section &generalConfig, const ini::Section &LSystem2DConfig)
+void gengine::handle2DLSystem(img::EasyImage &image,
+							  const ini::Section &generalConfig, const ini::Section &LSystem2DConfig)
 {
 	const int size = generalConfig["size"].as_int_or_die();
 	const Color backgroundColor = Color(generalConfig["backgroundcolor"].as_double_tuple_or_die());
+	const auto lSystemInputFile = LSystem2DConfig["inputfile"].as_string_or_die();
+	const Color linesColor = Color(LSystem2DConfig["color"].as_double_tuple_or_die());
 
 	Lines2D lines;
-	lines.push_back(Line2D(Point2D(0, 0), Point2D(90, 90)));
-	lines.push_back(Line2D(Point2D(0, 90), Point2D(90, 0)));
-	lines.push_back(Line2D(Point2D(0, 180), Point2D(20, 43), Color::RED));
-	lines.push_back(Line2D(Point2D(0, 180), Point2D(20, 130), Color::GREEN));
+	LParser::LSystem2D l_system;
+	std::ifstream lSystemFile(lSystemInputFile);
 
-	draw2DLines(lines, size, backgroundColor);
+	if (lSystemFile.fail())
+		return;
+
+	lSystemFile >> l_system;
+	lSystemFile.close();
+
+	lines = drawLSystem(l_system, linesColor);
+	image = draw2DLines(lines, size, backgroundColor);
 }
 
-Lines2D gengine::drawLSystem(const LParser::LSystem2D &lSystem)
+std::string applyReplacement(const std::string& string, const LParser::LSystem2D &lSystem)
+{
+	std::string full_string;
+
+	for (auto c : string)
+	{
+		if (c == '-' || c == '+' || c == '(' || c == ')')
+			full_string += c;
+		else
+			full_string += lSystem.get_replacement(c);
+	}
+
+	return full_string;
+}
+
+Lines2D gengine::drawLSystem(const LParser::LSystem2D &lSystem, const Color &color)
 {
 	Lines2D lines;
+	Point2D currentPosition(0, 0);
+	double currentAngle = lSystem.get_starting_angle();
+	std::stack<std::pair<Point2D, double>> stackedPositions;
 
+	std::string full_string = lSystem.get_initiator();
+	for (unsigned int i = 0; i < lSystem.get_nr_iterations(); i++)
+	{
+		full_string = applyReplacement(full_string, lSystem);
+	}
+
+	for (auto c : full_string)
+	{
+		if (c == '+')
+		{
+			currentAngle += lSystem.get_angle();
+			continue;
+		}
+		else if (c == '-')
+		{
+			currentAngle -= lSystem.get_angle();
+			continue;
+		}
+		else if (c == '(')
+		{
+			stackedPositions.push(std::make_pair(currentPosition, currentAngle));
+			continue;
+		}
+		else if (c == ')')
+		{
+			auto position = stackedPositions.top();
+			stackedPositions.pop();
+			currentPosition = position.first;
+			currentAngle = position.second;
+			continue;
+		}
+
+		Point2D next_position;
+		next_position.x = currentPosition.x + std::cos(degToRad(currentAngle));
+		next_position.y = currentPosition.y + std::sin(degToRad(currentAngle));
+
+		if (lSystem.draw(c))
+		{
+			Line2D line;
+
+			line.p1 = currentPosition;
+			line.p2 = next_position;
+			line.color = color;
+
+			lines.push_back(line);
+		}
+
+		currentPosition = next_position;
+	}
 
 	return lines;
 }

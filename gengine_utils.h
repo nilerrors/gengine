@@ -112,6 +112,13 @@ struct Line2D
 	Point2D p2;
 	Color color;
 
+	Line2D()
+	{
+		Line2D::p1 = Point2D(0, 0);
+		Line2D::p2 = Point2D(0, 0);
+		Line2D::color = Color(0, 0, 0);
+	}
+
 	Line2D(Point2D p1, Point2D p2)
 	{
 		Line2D::p1 = p1;
@@ -136,6 +143,7 @@ struct Line2D
 
 using Lines2D = std::list<Line2D>;
 
+double degToRad(double deg);
 
 }
 

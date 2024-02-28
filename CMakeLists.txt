@@ -23,6 +23,7 @@ set(engine_sources
 		ex00.cpp
 		gengine_line.cpp
 		gengine_line.h
+		gengine_utils.cpp
 )
 
 ############################################################

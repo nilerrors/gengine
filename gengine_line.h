@@ -23,7 +23,7 @@ struct OuterMostPixels
 static OuterMostPixels calculate_outer_most_pixels(const Lines2D &lines);
 
 img::EasyImage draw2DLines(Lines2D &lines, int size, const Color &bgColor);
-Lines2D drawLSystem(const LParser::LSystem2D &lSystem);
+Lines2D drawLSystem(const LParser::LSystem2D &lSystem, const Color &color);
 void handle2DLSystem(img::EasyImage &image, const ini::Section &generalConfig, const ini::Section &LSystem2DConfig);
 
 }
