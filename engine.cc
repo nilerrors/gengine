@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include "gengine_line.h"
+#include "gengine_l3d.h"
 
 using namespace gengine;
 
@@ -17,6 +18,14 @@ img::EasyImage generate_image(const ini::Configuration &configuration)
 	if (imageType == "2DLSystem")
 	{
 		image = Draw2DLSystem(configuration["General"], configuration["2DLSystem"]).drawLSystem();
+	}
+	else if (imageType == "Wireframe")
+	{
+		int size = configuration["General"]["size"].as_int_or_die();
+		Color backgroundColor = Color(configuration["General"]["backgroundcolor"].as_double_tuple_or_die());
+
+		Lines2D lines = Wireframe(configuration).doProjection();
+		image = Draw2DLSystem::draw2DLines(lines, size, backgroundColor);
 	}
 
 	return image;

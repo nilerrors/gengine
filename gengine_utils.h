@@ -8,6 +8,7 @@
 #include <list>
 #include <vector>
 #include "easy_image.h"
+#include "vector3d.h"
 
 namespace gengine
 {
@@ -44,6 +45,18 @@ struct Color
 
 	explicit Color(COLOR color)
 	{
+		*this = color;
+	}
+
+	Color(double r, double g, double b)
+	{
+		red = r;
+		green = g;
+		blue = b;
+	}
+
+	Color &operator=(const COLOR color)
+	{
 		switch (color)
 		{
 			case WHITE:
@@ -72,13 +85,7 @@ struct Color
 				blue = 1;
 				break;
 		}
-	}
-
-	Color(double r, double g, double b)
-	{
-		red = r;
-		green = g;
-		blue = b;
+		return *this;
 	}
 
 	img::Color to_img_color() const
@@ -146,6 +153,38 @@ struct Line2D
 using Lines2D = std::vector<Line2D>;
 
 double degToRad(double deg);
+
+
+//////////////////////////////////////
+// 3D L-System
+
+class Face
+{
+public:
+	//De indexen refereren naar
+	// punten in de ‘points’ vector
+	// van de Figure-klasse
+
+	Face(int p1, int p2)
+	{
+		point_indexes.push_back(p1);
+		point_indexes.push_back(p2);
+	}
+
+	std::vector<int> point_indexes;
+};
+
+class Figure
+{
+public:
+	Figure() : color(Color::WHITE) {}
+
+	std::vector<Vector3D> points;
+	std::vector<Face> faces;
+	Color color;
+};
+
+using Figures3D = std::vector<Figure>;
 
 }
 

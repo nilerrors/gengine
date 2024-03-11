@@ -23,6 +23,8 @@
 #include <string>
 #include <set>
 #include <exception>
+#include <utility>
+#include <vector>
 
 
 
@@ -158,6 +160,24 @@ namespace LParser
 			 */
 			unsigned int get_nr_iterations() const;
 
+
+			/**
+			 * \brief the replacement rules of the l-system
+			 * the standard probability is 1.0,
+			 * which is the same as not using stochastic replacement
+			 */
+			struct StochasticReplacement
+			{
+				double probability = 1.0;
+				std::string replacement;
+
+				StochasticReplacement(double probability, std::string replacement)
+						: probability(probability), replacement(std::move(replacement))
+				{}
+			};
+
+			typedef std::vector<StochasticReplacement> ReplacementRule;
+
 		protected:
 		        /**
 		         * \brief the alphabet of the l-system
@@ -182,7 +202,7 @@ namespace LParser
 		        /**
 		         * \brief the replacement rules of the l-system
 		         */
-			std::map<char, std::string> replacementrules;
+			std::map<char, ReplacementRule> replacementrules;
 
 		        /**
 		         * \brief the number of replacements of the l-system

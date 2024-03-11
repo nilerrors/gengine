@@ -23,7 +23,8 @@
 #include <iomanip>
 #include <cctype>
 #include <sstream>
-
+#include <random>
+#include <algorithm>
 
 
 namespace
@@ -342,7 +343,7 @@ namespace
 		}
 		return num_parenthesis == 0;
 	}
-	void parse_rules(std::set<char> const& alphabet, std::map<char, std::string>& rules, stream_parser& parser, bool parse2D)
+	void parse_rules(std::set<char> const& alphabet, std::map<char, LParser::LSystem::ReplacementRule>& rules, stream_parser& parser, bool parse2D)
 	{
 		parser.skip_comments_and_whitespace();
 		parser.assertChars("Rules");
@@ -355,20 +356,38 @@ namespace
 		char c = parser.getChar();
 		while (true)
 		{
+			double rule_percentage = 1.0;
 			if (!std::isalpha(c))
 				throw LParser::ParserException("Invalid Alphabet character", parser.getLine(), parser.getCol());
 			if (alphabet.find(c) == alphabet.end())
 				throw LParser::ParserException(std::string("Replacement rule specified for char '") + c + "' which is not part of the alphabet. ", parser.getLine(), parser.getCol());
-			if (rules.find(c) != rules.end())
-				throw LParser::ParserException(std::string("Double entry '") + c + "' in rules specification ", parser.getLine(), parser.getCol());
 			char alphabet_char = c;
+			parser.skip_comments_and_whitespace();
+			if (parser.peekChar() == '(')
+			{
+				parser.getChar();
+				parser.skip_comments_and_whitespace();
+
+				// Stochastic rules
+				rule_percentage = parser.readDouble();
+				if (rule_percentage < 0 || rule_percentage > 1)
+					throw LParser::ParserException("Percentage should be between 0 and 1", parser.getLine(), parser.getCol());
+				parser.skip_comments_and_whitespace();
+				parser.assertChars(")");
+			}
+			else if (rules.find(c) != rules.end())
+				throw LParser::ParserException(std::string("Double entry '") + c + "' in rules specification for non-stochastic rule ", parser.getLine(), parser.getCol());
 			parser.skip_comments_and_whitespace();
 			parser.assertChars("->");
 			parser.skip_comments_and_whitespace();
 			std::string rule = parser.readQuotedString();
 			if (!isValidRule(alphabet, rule, parse2D))
 				throw LParser::ParserException(std::string("Invalid rule specification for entry '") + alphabet_char + "' in rule specification", parser.getLine(), parser.getCol());
-			rules[alphabet_char] = rule;
+			if (rules.find(alphabet_char) == rules.end())
+			{
+				rules[alphabet_char] = LParser::LSystem::ReplacementRule();
+			}
+			rules[alphabet_char].push_back(LParser::LSystem::StochasticReplacement(rule_percentage, rule));
 			parser.skip_comments_and_whitespace();
 			c = parser.getChar();
 			if (c == '}')
@@ -486,7 +505,41 @@ bool LParser::LSystem::draw(char c) const
 std::string const& LParser::LSystem::get_replacement(char c) const
 {
 	assert(get_alphabet().find(c) != get_alphabet().end());
-	return replacementrules.find(c)->second;
+	assert(replacementrules.find(c) != replacementrules.end());
+
+	auto replacement_rule = &(replacementrules.find(c)->second);
+
+	if (replacement_rule->size() == 1)
+	{
+		return replacement_rule->front().replacement;
+	}
+
+	double totalProbability = 0;
+	for (const auto &replacement : *replacement_rule)
+	{
+		totalProbability += replacement.probability;
+	}
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, totalProbability);
+
+	// shuffle the vector
+	//std::shuffle(replacement_rule->begin(), replacement_rule->end(), gen);
+	// generate a random value between 0 and the total probability
+	double randomValue = dis(gen);
+
+	double cumulativeProbability = 0;
+	for (const auto &replacement : *replacement_rule)
+	{
+		cumulativeProbability += replacement.probability;
+		if (randomValue <= cumulativeProbability)
+		{
+			return replacement.replacement;
+		}
+	}
+
+	throw std::runtime_error("No replacement found");
 }
 double LParser::LSystem::get_angle() const
 {

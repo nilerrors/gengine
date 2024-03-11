@@ -5,37 +5,41 @@
 #include <cmath>
 #include <stack>
 #include <fstream>
+#include <sstream>
 #include "gengine_line.h"
 
 using namespace gengine;
 
-static OuterMostPixels gengine::calculate_outer_most_pixels(const Lines2D &lines)
-{
-	OuterMostPixels pixels;
 
+Draw2DLSystem::~Draw2DLSystem()
+{
+	delete image;
+	image = nullptr;
+}
+
+void gengine::calculate_outer_most_pixels(const Lines2D &lines, OuterMostPixels *pixels)
+{
 	for (const Line2D &line : lines)
 	{
 		// max
-		if (line.p1.x > pixels.max.x)
-			pixels.max.x = line.p1.x;
-		if (line.p2.x > pixels.max.x)
-			pixels.max.x = line.p2.x;
-		if (line.p1.y > pixels.max.y)
-			pixels.max.y = line.p1.y;
-		if (line.p2.y > pixels.max.y)
-			pixels.max.y = line.p2.y;
+		if (line.p1.x > pixels->max.x)
+			pixels->max.x = line.p1.x;
+		if (line.p2.x > pixels->max.x)
+			pixels->max.x = line.p2.x;
+		if (line.p1.y > pixels->max.y)
+			pixels->max.y = line.p1.y;
+		if (line.p2.y > pixels->max.y)
+			pixels->max.y = line.p2.y;
 		// min
-		if (line.p1.x < pixels.min.x)
-			pixels.min.x = line.p1.x;
-		if (line.p2.x < pixels.min.x)
-			pixels.min.x = line.p2.x;
-		if (line.p1.y < pixels.min.y)
-			pixels.min.y = line.p1.y;
-		if (line.p2.y < pixels.min.y)
-			pixels.min.y = line.p2.y;
+		if (line.p1.x < pixels->min.x)
+			pixels->min.x = line.p1.x;
+		if (line.p2.x < pixels->min.x)
+			pixels->min.x = line.p2.x;
+		if (line.p1.y < pixels->min.y)
+			pixels->min.y = line.p1.y;
+		if (line.p2.y < pixels->min.y)
+			pixels->min.y = line.p2.y;
 	}
-
-	return pixels;
 }
 
 Draw2DLSystem::Draw2DLSystem(const ini::Section &generalConfig, const ini::Section &LSystem2DConfig)
@@ -55,13 +59,16 @@ Draw2DLSystem::Draw2DLSystem(const ini::Section &generalConfig, const ini::Secti
 
 void gengine::Draw2DLSystem::draw2DLines()
 {
-	OuterMostPixels outer_most_pixels = calculate_outer_most_pixels(lines);
+	OuterMostPixels outer_most_pixels;
+	calculate_outer_most_pixels(lines, &outer_most_pixels);
 	double x_range = outer_most_pixels.max.x - outer_most_pixels.min.x;
 	double y_range = outer_most_pixels.max.y - outer_most_pixels.min.y;
 	double image_x = size * (x_range / fmax(x_range, y_range));
 	double image_y = size * (y_range / fmax(x_range, y_range));
 
-	image = img::EasyImage(lround(image_x), lround(image_y), backgroundColor.to_img_color());
+	delete image;
+	image = nullptr;
+	image = new img::EasyImage(lround(image_x), lround(image_y), backgroundColor.to_img_color());
 
 	double scale_factor = 0.95 * (image_x / x_range);
 	double DC_x = scale_factor * (outer_most_pixels.min.x + outer_most_pixels.max.x) / 2;
@@ -71,29 +78,40 @@ void gengine::Draw2DLSystem::draw2DLines()
 
 	for (auto &line : lines)
 	{
-		// multiply all coordinates by scale_factor
 		line.p1.x = line.p1.x * scale_factor + d_x;
 		line.p1.y = line.p1.y * scale_factor + d_y;
 		line.p2.x = line.p2.x * scale_factor + d_x;
 		line.p2.y = line.p2.y * scale_factor + d_y;
 
-		image.draw_line(lround(line.p1.x), lround(line.p1.y),
+		image->draw_line(lround(line.p1.x), lround(line.p1.y),
 		                lround(line.p2.x), lround(line.p2.y), line.color.to_img_color());
 	}
 }
 
 void gengine::Draw2DLSystem::applyReplacement()
 {
-	for (int i = 0; i < l_system.get_nr_iterations(); i++)
+	for (unsigned int i = 0; i < l_system.get_nr_iterations(); i++)
 	{
 		std::string full_string;
 
 		for (auto c : full_replacement)
 		{
-			if (c == '-' || c == '+' || c == '(' || c == ')')
-				full_string += c;
-			else
-				full_string += l_system.get_replacement(c);
+			switch (c)
+			{
+				case '-':
+				case '+':
+				case '(':
+				case ')':
+				{
+					full_string.push_back(c);
+					break;
+				}
+				default:
+				{
+					full_string += l_system.get_replacement(c);
+					break;
+				}
+			}
 		}
 
 		full_replacement = full_string;
@@ -158,5 +176,5 @@ const img::EasyImage &gengine::Draw2DLSystem::drawLSystem()
 	}
 
 	draw2DLines();
-	return image;
+	return *image;
 }
