@@ -28,6 +28,11 @@ img::EasyImage generate_image(const ini::Configuration &configuration)
 		image = Draw2DLSystem::draw2DLines(lines, size, backgroundColor);
 	}
 
+	static int imageNumber = 1;
+	std::cout << "Image " << imageNumber << " generated: " << imageType << std::endl;
+
+	imageNumber++;
+
 	return image;
 }
 

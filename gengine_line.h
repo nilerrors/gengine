@@ -39,7 +39,7 @@ public:
 		double image_x = size * (x_range / std::fmax(x_range, y_range));
 		double image_y = size * (y_range / std::fmax(x_range, y_range));
 
-		auto* image = new img::EasyImage(lround(image_x), lround(image_y), backgroundColor.to_img_color());
+		auto* image = new img::EasyImage(std::lround(image_x), std::lround(image_y), backgroundColor.to_img_color());
 
 		double scale_factor = 0.95 * (image_x / x_range);
 		double DC_x = scale_factor * (outer_most_pixels.min.x + outer_most_pixels.max.x) / 2;
@@ -49,8 +49,8 @@ public:
 
 		for (auto &line : lines)
 		{
-			image->draw_line(lround(line.p1.x * scale_factor + d_x), lround(line.p1.y * scale_factor + d_y),
-			                 lround(line.p2.x * scale_factor + d_x), lround(line.p2.y * scale_factor + d_y),
+			image->draw_line(std::lround(line.p1.x * scale_factor + d_x), std::lround(line.p1.y * scale_factor + d_y),
+			                 std::lround(line.p2.x * scale_factor + d_x), std::lround(line.p2.y * scale_factor + d_y),
 							 line.color.to_img_color());
 		}
 		return *image;

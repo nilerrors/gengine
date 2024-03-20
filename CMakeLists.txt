@@ -25,6 +25,8 @@ set(engine_sources
 		gengine_line.h
 		gengine_utils.cpp
 		gengine_l3d.cpp
+		gengine_figures3d.cpp
+		gengine_figures3d.h
 )
 
 ############################################################

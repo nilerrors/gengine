@@ -13,6 +13,8 @@
 namespace gengine
 {
 
+#define PI 3.14159265358979323846
+
 struct Color
 {
 	// Values can be in between 0 and 1 (inclusive)
@@ -164,6 +166,10 @@ public:
 	//De indexen refereren naar
 	// punten in de ‘points’ vector
 	// van de Figure-klasse
+
+	Face() = default;
+
+	explicit Face(const std::vector<int> &point_indexes) : point_indexes(point_indexes) { }
 
 	Face(int p1, int p2)
 	{

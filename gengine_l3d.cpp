@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <cmath>
+#include "gengine_figures3d.h"
 
 namespace gengine
 {
@@ -31,8 +32,7 @@ Wireframe::~Wireframe()
 
 void Wireframe::addFigureFromConfig(const ini::Section &section)
 {
-	auto *figure = new Figure();
-
+	const std::string type = section["type"].as_string_or_die();
 	const double rotX = degToRad(section["rotateX"].as_double_or_die());
 	const double rotY = degToRad(section["rotateY"].as_double_or_die());
 	const double rotZ = degToRad(section["rotateZ"].as_double_or_die());
@@ -42,27 +42,81 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
 			section["center"].as_double_tuple_or_die()[1],
 			section["center"].as_double_tuple_or_die()[2]);
 	const Color color = Color(section["color"].as_double_tuple_or_die());
+	auto *figure = new Figure();
+
+	if (type == "LineDrawing")
+	{
+		const int nrPoints = section["nrPoints"].as_int_or_die();
+		const int nrLines = section["nrLines"].as_int_or_die();
+
+		for (int i = 0; i < nrPoints; i++)
+		{
+			const std::string point = "point" + std::to_string(i);
+			figure->points.push_back(Vector3D::point(
+					section[point].as_double_tuple_or_die()[0],
+					section[point].as_double_tuple_or_die()[1],
+					section[point].as_double_tuple_or_die()[2]));
+		}
+
+		for (int i = 0; i < nrLines; i++)
+		{
+			const std::string line = "line" + std::to_string(i);
+			figure->faces.push_back(Face(
+					section[line].as_int_tuple_or_die()[0],
+					section[line].as_int_tuple_or_die()[1]));
+		}
+	}
+	else if (type == "3DLSystem")
+	{
+		*figure = create3DLSystem(section);
+	}
+	else if (type == "Cube")
+	{
+		*figure = Platonic::createCube();
+	}
+	else if (type == "Tetrahedron")
+	{
+		*figure = Platonic::createTetrahedron();
+	}
+	else if (type == "Octahedron")
+	{
+		*figure = Platonic::createOctahedron();
+	}
+	else if (type == "Icosahedron")
+	{
+		*figure = Platonic::createIcosahedron();
+	}
+	else if (type == "Dodecahedron")
+	{
+		*figure = Platonic::createDodecahedron();
+	}
+	else if (type == "Cylinder")
+	{
+		*figure = Platonic::createCylinder(section["n"].as_int_or_die(), section["height"].as_double_or_die());
+	}
+	else if (type == "Cone")
+	{
+		*figure = Platonic::createCone(section["n"].as_int_or_die(), section["height"].as_double_or_die());
+	}
+	else if (type == "Sphere")
+	{
+		*figure = Platonic::createSphere(section["n"].as_int_or_die());
+	}
+	else if (type == "Torus")
+	{
+		*figure = Platonic::createTorus(
+				section["r"].as_double_or_die(),
+				section["R"].as_double_or_die(),
+				section["n"].as_int_or_die(),
+				section["m"].as_int_or_die());
+	}
+	else
+	{
+		std::cerr << "Unknown figure type: " << type << std::endl;
+		exit(1);
+	}
+
 	figure->color = color;
-	const int nrPoints = section["nrPoints"].as_int_or_die();
-	const int nrLines = section["nrLines"].as_int_or_die();
-
-	for (int i = 0; i < nrPoints; i++)
-	{
-		const std::string point = "point" + std::to_string(i);
-		figure->points.push_back(Vector3D::point(
-				section[point].as_double_tuple_or_die()[0],
-				section[point].as_double_tuple_or_die()[1],
-				section[point].as_double_tuple_or_die()[2]));
-	}
-
-	for (int i = 0; i < nrLines; i++)
-	{
-		const std::string line = "line" + std::to_string(i);
-		figure->faces.push_back(Face(
-				section[line].as_int_tuple_or_die()[0],
-				section[line].as_int_tuple_or_die()[1]));
-	}
-
 	Matrix transformation =
 			scaleFigure(scale)
 			* rotateX(rotX) * rotateY(rotY) * rotateZ(rotZ)
@@ -83,9 +137,6 @@ Wireframe *Wireframe::allFiguresFromConfig(const ini::Configuration &configurati
 	{
 		const ini::Section current_figure_section = configuration["Figure" + std::to_string(i)];
 
-		if (current_figure_section["type"].as_string_or_die() != "LineDrawing")
-			throw std::runtime_error("Not implemented yet");
-
 		addFigureFromConfig(current_figure_section);
 	}
 
@@ -100,10 +151,19 @@ const Lines2D &Wireframe::doProjection()
 		double d = 1;
 		for (auto &face : figure->faces)
 		{
+			if (face.point_indexes.size() < 2)
+				throw std::runtime_error("Face has less than 2 points");
 			lines.push_back(Line2D(
 					gengine::doProjection(figure->points[face.point_indexes[0]], d),
-					gengine::doProjection(figure->points[face.point_indexes[1]], d),
+					gengine::doProjection(figure->points[face.point_indexes[face.point_indexes.size() - 1]], d),
 					figure->color));
+			for (size_t i = 0; i < face.point_indexes.size() - 1; i++)
+			{
+				lines.push_back(Line2D(
+						gengine::doProjection(figure->points[face.point_indexes[i]], d),
+						gengine::doProjection(figure->points[face.point_indexes[i + 1]], d),
+						figure->color));
+			}
 		}
 	}
 
