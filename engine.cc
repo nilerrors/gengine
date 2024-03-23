@@ -1,13 +1,84 @@
-#include "easy_image.h"
-#include "ini_configuration.h"
+#include "lib/easy_image.h"
+#include "lib/ini_configuration.h"
 
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "gengine_line.h"
-#include "gengine_l3d.h"
+#include <chrono>
+#include "gengine/line.h"
+#include "gengine/line3d.h"
+#include "gengine/zbufwireframe.h"
 
 using namespace gengine;
+
+size_t total_alloc_size = 0;
+size_t total_alloc_count = 0;
+size_t total_dealloc_size = 0;
+size_t total_dealloc_count = 0;
+
+void *operator new(size_t size)
+{
+	total_alloc_size += size;
+	total_alloc_count++;
+	void *p = malloc(size);
+	if (p == nullptr)
+	{
+		throw std::bad_alloc();
+	}
+	return p;
+}
+
+void operator delete(void *p) noexcept
+{
+	total_dealloc_count++;
+	free(p);
+}
+
+void operator delete(void *p, size_t size) noexcept
+{
+	total_dealloc_count++;
+	total_dealloc_size += size;
+	free(p);
+}
+
+void *operator new[](size_t size)
+{
+	total_alloc_size += size;
+	total_alloc_count++;
+	void *p = malloc(size);
+	if (p == nullptr)
+	{
+		throw std::bad_alloc();
+	}
+	return p;
+}
+
+void operator delete[](void *p) noexcept
+{
+	total_dealloc_count++;
+	free(p);
+}
+
+void operator delete[](void *p, size_t size) noexcept
+{
+	total_dealloc_count++;
+	total_dealloc_size += size;
+	free(p);
+}
+
+void print_alloc_info()
+{
+	std::cout << "Total alloc size: " << total_alloc_size / 1000 / 1000 << "MB" << std::endl;
+	std::cout << "Total alloc count: " << total_alloc_count << std::endl;
+	std::cout << "Total dealloc size: " << total_dealloc_size / 1000 / 1000 << "MB" << std::endl;
+	std::cout << "Total dealloc count: " << total_dealloc_count << std::endl;
+	std::cout << std::endl;
+
+	total_alloc_size = 0;
+	total_alloc_count = 0;
+	total_dealloc_count = 0;
+	total_dealloc_size = 0;
+}
 
 img::EasyImage generate_image(const ini::Configuration &configuration)
 {
@@ -21,17 +92,14 @@ img::EasyImage generate_image(const ini::Configuration &configuration)
 	}
 	else if (imageType == "Wireframe")
 	{
-		int size = configuration["General"]["size"].as_int_or_die();
-		Color backgroundColor = Color(configuration["General"]["backgroundcolor"].as_double_tuple_or_die());
-
-		Lines2D lines = Wireframe(configuration).doProjection();
-		image = Draw2DLSystem::draw2DLines(lines, size, backgroundColor);
+		image = Wireframe(configuration).drawWireframe();
+	}
+	else if (imageType == "ZBufferedWireframe")
+	{
+		image  = ZBufferedWireframe(configuration).drawWireframe();
 	}
 
-	static int imageNumber = 1;
-	std::cout << "Image " << imageNumber << " generated: " << imageType << std::endl;
-
-	imageNumber++;
+	print_alloc_info();
 
 	return image;
 }

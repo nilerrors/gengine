@@ -3,8 +3,8 @@
 //
 
 #include <cmath>
-#include "easy_image.h"
-#include "ini_configuration.h"
+#include "lib/easy_image.h"
+#include "lib/ini_configuration.h"
 
 img::EasyImage ColorRectangle(const uint height, const uint width)
 {

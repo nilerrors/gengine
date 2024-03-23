@@ -1,0 +1,37 @@
+//
+// Created by nilerrors on 3/22/24.
+//
+
+#ifndef ENGINE_ZBUFWIREFRAME_H
+#define ENGINE_ZBUFWIREFRAME_H
+
+#include "../lib/ini_configuration.h"
+#include "../lib/vector3d.h"
+#include "line3d.h"
+#include "utils.h"
+#include "zbuffer.h"
+
+namespace gengine
+{
+
+class ZBufferedWireframe : public Wireframe
+{
+public:
+	ZBufferedWireframe();
+
+	explicit ZBufferedWireframe(const ini::Configuration &config);
+
+	~ZBufferedWireframe();
+
+	const Lines2D &doProjection() override;
+	static Point2D doProjection(const Vector3D &point, double d, double &z, double dx = 0, double dy = 0);
+
+	const img::EasyImage &drawWireframe() override;
+
+private:
+	ZBuffer zBuffer;
+};
+
+}
+
+#endif //ENGINE_ZBUFWIREFRAME_H

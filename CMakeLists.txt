@@ -6,7 +6,7 @@ project(engine)
 # Set compiler flags
 ############################################################
 # If supported by your compiler, you can add the -Wall, -Wextra, –fstack-protector-all and -g3 flags here.
-set(OWN_GXX_FLAGS "-std=c++14 -Wall -Wextra -Werror")
+set(OWN_GXX_FLAGS "-std=c++14 -Wall -Wextra -Werror -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${OWN_GXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OWN_GXX_FLAGS}")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OWN_GXX_FLAGS}")
@@ -15,18 +15,22 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OWN_GXX_FLAGS}")
 # List all sources
 ############################################################
 set(engine_sources
-	easy_image.cc
+		lib/easy_image.cc
 	engine.cc
-	ini_configuration.cc
-	l_parser.cc
-	vector3d.cc
-		gengine_utils.h
-		gengine_line.cpp
-		gengine_line.h
-		gengine_utils.cpp
-		gengine_l3d.cpp
-		gengine_figures3d.cpp
-		gengine_figures3d.h
+		lib/ini_configuration.cc
+		lib/l_parser.cc
+		lib/vector3d.cc
+		gengine/utils.h
+		gengine/line.cpp
+		gengine/line.h
+		gengine/utils.cpp
+		gengine/line3d.cpp
+		gengine/figures3d.cpp
+		gengine/figures3d.h
+		gengine/zbuffer.cpp
+		gengine/zbuffer.h
+		gengine/zbufwireframe.cpp
+		gengine/zbufwireframe.h
 )
 
 ############################################################
