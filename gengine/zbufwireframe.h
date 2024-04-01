@@ -24,11 +24,12 @@ public:
 	~ZBufferedWireframe();
 
 	const Lines2D &doProjection() override;
-	static Point2D doProjection(const Vector3D &point, double d, double &z, double dx = 0, double dy = 0);
+	static Point2D doProjection(const Vector3D &point, double d, double *z);
+	static Point2D doProjection(const Vector3D &point, double d, double *z, double dx, double dy);
 
 	const img::EasyImage &drawWireframe() override;
 
-private:
+protected:
 	ZBuffer zBuffer;
 };
 

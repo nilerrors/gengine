@@ -4,81 +4,13 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <chrono>
 #include "gengine/line.h"
 #include "gengine/line3d.h"
 #include "gengine/zbufwireframe.h"
+#include "gengine/zbuffering.h"
 
 using namespace gengine;
 
-size_t total_alloc_size = 0;
-size_t total_alloc_count = 0;
-size_t total_dealloc_size = 0;
-size_t total_dealloc_count = 0;
-
-void *operator new(size_t size)
-{
-	total_alloc_size += size;
-	total_alloc_count++;
-	void *p = malloc(size);
-	if (p == nullptr)
-	{
-		throw std::bad_alloc();
-	}
-	return p;
-}
-
-void operator delete(void *p) noexcept
-{
-	total_dealloc_count++;
-	free(p);
-}
-
-void operator delete(void *p, size_t size) noexcept
-{
-	total_dealloc_count++;
-	total_dealloc_size += size;
-	free(p);
-}
-
-void *operator new[](size_t size)
-{
-	total_alloc_size += size;
-	total_alloc_count++;
-	void *p = malloc(size);
-	if (p == nullptr)
-	{
-		throw std::bad_alloc();
-	}
-	return p;
-}
-
-void operator delete[](void *p) noexcept
-{
-	total_dealloc_count++;
-	free(p);
-}
-
-void operator delete[](void *p, size_t size) noexcept
-{
-	total_dealloc_count++;
-	total_dealloc_size += size;
-	free(p);
-}
-
-void print_alloc_info()
-{
-	std::cout << "Total alloc size: " << total_alloc_size / 1000 / 1000 << "MB" << std::endl;
-	std::cout << "Total alloc count: " << total_alloc_count << std::endl;
-	std::cout << "Total dealloc size: " << total_dealloc_size / 1000 / 1000 << "MB" << std::endl;
-	std::cout << "Total dealloc count: " << total_dealloc_count << std::endl;
-	std::cout << std::endl;
-
-	total_alloc_size = 0;
-	total_alloc_count = 0;
-	total_dealloc_count = 0;
-	total_dealloc_size = 0;
-}
 
 img::EasyImage generate_image(const ini::Configuration &configuration)
 {
@@ -86,22 +18,24 @@ img::EasyImage generate_image(const ini::Configuration &configuration)
 
     img::EasyImage image(0, 0);
 
-	if (imageType == "2DLSystem")
-	{
-		image = Draw2DLSystem(configuration["General"], configuration["2DLSystem"]).drawLSystem();
-	}
-	else if (imageType == "Wireframe")
-	{
-		image = Wireframe(configuration).drawWireframe();
-	}
-	else if (imageType == "ZBufferedWireframe")
-	{
-		image  = ZBufferedWireframe(configuration).drawWireframe();
-	}
+        if (imageType == "2DLSystem")
+        {
+                image = Draw2DLSystem(configuration["General"], configuration["2DLSystem"]).drawLSystem();
+        }
+        else if (imageType == "Wireframe")
+        {
+                image = Wireframe(configuration).drawWireframe();
+        }
+        else if (imageType == "ZBufferedWireframe")
+        {
+                image = ZBufferedWireframe(configuration).drawWireframe();
+        }
+        else if (imageType == "ZBuffering")
+        {
+                image = ZBuffering(configuration).drawWireframe();
+        }
 
-	print_alloc_info();
-
-	return image;
+        return image;
 }
 
 int main(int argc, char const* argv[])

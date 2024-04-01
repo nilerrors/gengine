@@ -31,6 +31,8 @@ set(engine_sources
 		gengine/zbuffer.h
 		gengine/zbufwireframe.cpp
 		gengine/zbufwireframe.h
+		gengine/zbuffering.cpp
+		gengine/zbuffering.h
 )
 
 ############################################################

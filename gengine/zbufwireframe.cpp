@@ -32,8 +32,8 @@ const Lines2D &ZBufferedWireframe::doProjection()
 				double z1, z2;
 
 				Line2D line = Line2D(
-						doProjection(figure->points[face.point_indexes[i]], d, z1),
-						doProjection(figure->points[face.point_indexes[next]], d, z2),
+						doProjection(figure->points[face.point_indexes[i]], d, &z1),
+						doProjection(figure->points[face.point_indexes[next]], d, &z2),
 						figure->color);
 
 				line.z1 = z1;
@@ -54,17 +54,21 @@ const img::EasyImage &ZBufferedWireframe::drawWireframe()
 	return image;
 }
 
+Point2D ZBufferedWireframe::doProjection(
+		const Vector3D &point, const double d, double *z)
+{
+	return doProjection(point, d, z, 0, 0);
+}
+
 
 Point2D ZBufferedWireframe::doProjection(
-		const Vector3D &point, const double d, double &z, double dx, double dy)
+		const Vector3D &point, const double d, double *z, double dx, double dy)
 {
 	Point2D new_point;
 
-	new_point.x = d * point.x / -point.z;
-	new_point.y = d * point.y / -point.z;
 	new_point.x = (d * point.x) / (-point.z) + dx;
 	new_point.y = (d * point.y) / (-point.z) + dy;
-	z = point.z;
+	*z = point.z;
 
 	return new_point;
 }

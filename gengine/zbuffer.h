@@ -7,13 +7,11 @@
 
 #include <vector>
 #include <cassert>
-#include <limits>
 #include "utils.h"
 
 namespace gengine
 {
 
-const double INF = std::numeric_limits<double>::infinity();
 
 class ZBuffer: public std::vector<std::vector<double>>
 {
@@ -41,6 +39,11 @@ public:
 						long x0, long y0, double z0,
 						long x1, long y1, double z1,
 						const img::Color &color);
+
+	void draw_zbuf_triag(img::EasyImage& image,
+						 Vector3D const& A, Vector3D const& B, Vector3D const& C,
+						 double d, double dx, double dy,
+						 const img::Color& color);
 
 private:
 	uint width = 0;

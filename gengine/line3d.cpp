@@ -3,8 +3,6 @@
 //
 
 #include "line3d.h"
-#include "../lib/ini_configuration.h"
-#include "../lib/vector3d.h"
 #include "line.h"
 
 #include <iostream>

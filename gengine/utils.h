@@ -6,6 +6,7 @@
 #define ENGINE_UTILS_H
 
 #include <list>
+#include <limits>
 #include <vector>
 #include "../lib/easy_image.h"
 #include "../lib/vector3d.h"
@@ -14,6 +15,8 @@ namespace gengine
 {
 
 #define PI M_PI
+
+const double INF = std::numeric_limits<double>::infinity();
 
 struct Color
 {
@@ -188,6 +191,20 @@ public:
 		point_indexes.push_back(p2);
 	}
 
+
+	void triangulate(std::vector<Face> *faces) const
+	{
+		if (point_indexes.size() < 3)
+		{
+			faces->push_back(*this);
+		}
+
+		for (uint i = 1; i <= point_indexes.size() - 2; i++)
+		{
+			faces->push_back(Face({point_indexes[0], point_indexes[i], point_indexes[i + 1]}));
+		}
+	}
+
 	std::vector<int> point_indexes;
 };
 
@@ -195,6 +212,18 @@ class Figure
 {
 public:
 	Figure() : color(Color::WHITE) {}
+
+	void triangulate()
+	{
+		std::vector<Face> temp_faces;
+
+		while (!faces.empty())
+		{
+			faces.back().triangulate(&temp_faces);
+			faces.pop_back();
+		}
+		Figure::faces = temp_faces;
+	}
 
 	std::vector<Vector3D> points;
 	std::vector<Face> faces;
