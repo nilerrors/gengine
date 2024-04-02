@@ -15,24 +15,18 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OWN_GXX_FLAGS}")
 # List all sources
 ############################################################
 set(engine_sources
+		engine.cc
 		lib/easy_image.cc
-	engine.cc
 		lib/ini_configuration.cc
 		lib/l_parser.cc
 		lib/vector3d.cc
-		gengine/utils.h
 		gengine/line.cpp
-		gengine/line.h
 		gengine/utils.cpp
 		gengine/line3d.cpp
 		gengine/figures3d.cpp
-		gengine/figures3d.h
 		gengine/zbuffer.cpp
-		gengine/zbuffer.h
 		gengine/zbufwireframe.cpp
-		gengine/zbufwireframe.h
 		gengine/zbuffering.cpp
-		gengine/zbuffering.h
 )
 
 ############################################################
