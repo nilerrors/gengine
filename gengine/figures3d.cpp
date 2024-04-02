@@ -266,6 +266,14 @@ Figure gengine::Platonic::createCone(const int n, const double height)
 		cone.faces.push_back(triangle);
 	}
 
+	Face bottom;
+	for (int i = 0; i < n; i++)
+	{
+		bottom.point_indexes.push_back(i + 1);
+	}
+	bottom.point_indexes.push_back(1);
+	cone.faces.push_back(bottom);
+
 	return cone;
 }
 
@@ -290,6 +298,22 @@ Figure gengine::Platonic::createCylinder(const int n, const double height)
 						(2 * (i + 1)) % (2 * n)});
 		cylinder.faces.push_back(rectangle);
 	}
+
+	Face bottom;
+	for (int i = 0; i < 2 * n; i++)
+	{
+		if (i % 2 == 0)
+			bottom.point_indexes.push_back(i);
+	}
+	cylinder.faces.push_back(bottom);
+
+	Face top;
+	for (int i = 0; i < 2 * n; i++)
+	{
+		if (i % 2 == 1)
+			top.point_indexes.push_back(i);
+	}
+	cylinder.faces.push_back(top);
 
 	return cylinder;
 }
