@@ -17,20 +17,22 @@ namespace gengine
 class ZBufferedWireframe : public Wireframe
 {
 public:
-	ZBufferedWireframe();
+    ZBufferedWireframe();
 
-	explicit ZBufferedWireframe(const ini::Configuration &config);
+    explicit ZBufferedWireframe(const ini::Configuration &config);
 
-	~ZBufferedWireframe();
+    ~ZBufferedWireframe();
 
-	const Lines2D &doProjection() override;
-	static Point2D doProjection(const Vector3D &point, double d, double *z);
-	static Point2D doProjection(const Vector3D &point, double d, double *z, double dx, double dy);
+    const Lines2D &doProjection() override;
 
-	const img::EasyImage &drawWireframe() override;
+    static Point2D doProjection(const Vector3D &point, double d, double *z);
+
+    static Point2D doProjection(const Vector3D &point, double d, double *z, double dx, double dy);
+
+    const img::EasyImage &drawWireframe() override;
 
 protected:
-	ZBuffer zBuffer;
+    ZBuffer zBuffer;
 };
 
 }

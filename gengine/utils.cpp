@@ -9,5 +9,5 @@ using namespace gengine;
 
 double gengine::degToRad(double deg)
 {
-	return (deg * (PI / 180));
+    return (deg * (PI / 180));
 }

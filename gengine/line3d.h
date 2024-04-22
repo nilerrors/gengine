@@ -15,25 +15,29 @@ namespace gengine
 class Wireframe
 {
 public:
-	Wireframe();
-	explicit Wireframe(const ini::Configuration &config);
-	~Wireframe();
+    Wireframe();
 
-	void allFiguresFromConfig(const ini::Configuration &configuration);
-	void addFigureFromConfig(const ini::Section &section);
+    explicit Wireframe(const ini::Configuration &config);
 
-	virtual const Lines2D &doProjection();
-	static Point2D doProjection(const Vector3D &point, double d);
+    ~Wireframe();
 
-	virtual const img::EasyImage &drawWireframe();
+    void allFiguresFromConfig(const ini::Configuration &configuration);
+
+    void addFigureFromConfig(const ini::Section &section);
+
+    virtual const Lines2D &doProjection();
+
+    static Point2D doProjection(const Vector3D &point, double d);
+
+    virtual const img::EasyImage &drawWireframe();
 
 protected:
-	img::EasyImage image;
-	std::vector<Figure *> figures;
-	int size;
-	Color backgroundColor;
-	Vector3D eyePoint;
-	Lines2D lines;
+    img::EasyImage image;
+    std::vector<Figure *> figures;
+    int size;
+    Color backgroundColor;
+    Vector3D eyePoint;
+    Lines2D lines;
 };
 
 

@@ -18,19 +18,19 @@ namespace gengine
 class ZBuffering : public ZBufferedWireframe
 {
 public:
-	ZBuffering();
+    ZBuffering();
 
-	explicit ZBuffering(const ini::Configuration &config);
+    explicit ZBuffering(const ini::Configuration &config);
 
-	~ZBuffering();
+    ~ZBuffering();
 
-	const Lines2D &doProjection() override;
+    const Lines2D &doProjection() override;
 
-	const img::EasyImage &drawWireframe() override;
+    const img::EasyImage &drawWireframe() override;
 };
 
 
-std::vector<Face> triangulate(const Face&face);
+std::vector<Face> triangulate(const Face &face);
 
 void calculate_x_range(long y, Point2D a, Point2D b, Point2D c, long *x_min, long *x_max);
 
