@@ -29,6 +29,9 @@ public:
 
     static Point2D doProjection(const Vector3D &point, double d);
 
+    static void
+    generateFractal(Figure *fig, std::vector<Figure *> &fractal, const int nr_iterations, const double scale);
+
     virtual const img::EasyImage &drawWireframe();
 
 protected:

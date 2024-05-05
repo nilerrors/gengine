@@ -13,7 +13,7 @@ ZBuffering::ZBuffering() = default;
 
 ZBuffering::ZBuffering(const ini::Configuration &config) : ZBufferedWireframe(config)
 {
-    for (auto &figure: figures)
+    for (Figure *figure: figures)
     {
         figure->triangulate();
     }
@@ -46,9 +46,9 @@ const img::EasyImage &ZBuffering::drawWireframe()
     double d_x = (image_x / 2) - DC_x;
     double d_y = (image_y / 2) - DC_y;
 
-    for (auto &figure: figures)
+    for (Figure *figure: figures)
     {
-        for (auto &face: figure->faces)
+        for (Face &face: figure->faces)
         {
             Vector3D A = figure->points[face.point_indexes[0]];
             Vector3D B = figure->points[face.point_indexes[1]];

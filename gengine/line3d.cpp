@@ -36,7 +36,7 @@ Wireframe::~Wireframe()
 
 void Wireframe::addFigureFromConfig(const ini::Section &section)
 {
-    const std::string type = section["type"].as_string_or_die();
+    std::string type = section["type"].as_string_or_die();
     const double rotX = degToRad(section["rotateX"].as_double_or_die());
     const double rotY = degToRad(section["rotateY"].as_double_or_die());
     const double rotZ = degToRad(section["rotateZ"].as_double_or_die());
@@ -47,6 +47,13 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
             section["center"].as_double_tuple_or_die()[2]);
     const Color color = Color(section["color"].as_double_tuple_or_die());
     auto *figure = new Figure();
+    bool fractal = false;
+
+    if (type.rfind("Fractal", 0) == 0)
+    {
+        fractal = true;
+        type = type.substr(std::string("Fractal").size());
+    }
 
     if (type == "LineDrawing")
     {
@@ -114,10 +121,53 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
                 section["n"].as_int_or_die(),
                 section["m"].as_int_or_die());
     }
+    else if (type == "BuckyBall")
+    {
+        static bool buckyBallWarned = false;
+        if (!buckyBallWarned)
+        {
+            std::cerr << "BuckyBall is not implemented yet" << std::endl;
+            buckyBallWarned = true;
+        }
+        *figure = createBuckyBall();
+    }
+    else if (type == "MengerSponge")
+    {
+        static bool mengerSpongeWarned = false;
+        if (!mengerSpongeWarned)
+        {
+            std::cerr << "MengerSponge is not implemented yet" << std::endl;
+            mengerSpongeWarned = true;
+        }
+        *figure = createMengerSponge();
+    }
     else
     {
         std::cerr << "Unknown figure type: " << type << std::endl;
         exit(1);
+    }
+
+    if (fractal && section["nrIterations"].as_int_or_die())
+    {
+        int iterations = section["nrIterations"].as_int_or_die();
+        double scale_fractal = section["fractalScale"].as_double_or_die();
+        std::vector<Figure *> fractal_figures = {};
+
+        generateFractal(figure, fractal_figures, iterations, scale_fractal);
+
+        for (Figure *fig: fractal_figures)
+        {
+            fig->color = color;
+            Matrix transformation =
+                    scaleFigure(scale)
+                    * rotateX(rotX) * rotateY(rotY) * rotateZ(rotZ)
+                    * translate(center)
+                    * eyePointTrans(eyePoint);
+
+            applyTransformation(fig, transformation);
+        }
+        figures.insert(figures.end(), fractal_figures.begin(), fractal_figures.end());
+        return;
     }
 
     figure->color = color;
@@ -191,6 +241,30 @@ const img::EasyImage &Wireframe::drawWireframe()
     return image;
 }
 
+void Wireframe::generateFractal(
+        Figure *fig, std::vector<Figure *> &fractal, const int nr_iterations, const double scale)
+{
+    if (nr_iterations == 0)
+    {
+        fractal.push_back(fig);
+        return;
+    }
+
+    Matrix scale_fractal = scaleFigure(1 / scale);
+    for (uint i = 0; i < fig->points.size(); i++)
+    {
+        auto *copied_frac = new Figure();
+        *copied_frac = *fig;
+        applyTransformation(copied_frac, scale_fractal);
+
+        Matrix translation = translate(fig->points[i] - copied_frac->points[i]);
+        applyTransformation(copied_frac, translation);
+
+        std::vector<Figure *> fractal_fracals = {};
+        generateFractal(copied_frac, fractal_fracals, nr_iterations - 1, scale);
+        fractal.insert(fractal.end(), fractal_fracals.begin(), fractal_fracals.end());
+    }
+}
 
 Matrix gengine::scaleFigure(const double scale)
 {

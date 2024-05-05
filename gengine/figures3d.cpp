@@ -374,7 +374,7 @@ Figure gengine::Platonic::createSphere(const int n)
         sphere = new_sphere;
     }
 
-    for (auto &point: sphere.points)
+    for (Vector3D &point: sphere.points)
     {
         point.normalise();
     }
@@ -415,6 +415,24 @@ Figure gengine::Platonic::createTorus(const double r, const double R, const int 
     return torus;
 }
 
+Figure gengine::createBuckyBall()
+{
+    Figure bucky;
+    Figure icosahedron = Platonic::createIcosahedron();
+
+    bucky = icosahedron;
+
+    return bucky;
+}
+
+Figure gengine::createMengerSponge()
+{
+    Figure menger_sponge;
+
+    menger_sponge = Platonic::createCube();
+
+    return menger_sponge;
+}
 
 Figure gengine::create3DLSystem(const ini::Section &LSystem3DConfig)
 {
@@ -442,7 +460,7 @@ Figure gengine::create3DLSystem(const ini::Section &LSystem3DConfig)
     for (unsigned int i = 0; i < l_system.get_nr_iterations(); i++)
     {
         std::string new_string;
-        for (auto c: full_replacement)
+        for (char c: full_replacement)
         {
             if (c == '+' || c == '-' || c == '(' || c == ')'
                 || c == '^' || c == '&' || c == '\\' || c == '/' || c == '|')
@@ -457,11 +475,11 @@ Figure gengine::create3DLSystem(const ini::Section &LSystem3DConfig)
     }
 
 
-    for (auto c: full_replacement)
+    for (char c: full_replacement)
     {
-        auto Hnew = H;
-        auto Lnew = L;
-        auto Unew = U;
+        Vector3D Hnew = H;
+        Vector3D Lnew = L;
+        Vector3D Unew = U;
         switch (c)
         {
         case '+':
@@ -525,7 +543,7 @@ Figure gengine::create3DLSystem(const ini::Section &LSystem3DConfig)
         }
         case ')':
         {
-            auto top = stack.top();
+            std::tuple<Vector3D, Vector3D, Vector3D, Vector3D> top = stack.top();
             current_point = std::get<0>(top);
             Hnew = std::get<1>(top);
             Lnew = std::get<2>(top);

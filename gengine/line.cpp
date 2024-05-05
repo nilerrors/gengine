@@ -94,7 +94,7 @@ void gengine::Draw2DLSystem::draw2DLines()
     double d_x = (image_x / 2) - DC_x;
     double d_y = (image_y / 2) - DC_y;
 
-    for (auto &line: lines)
+    for (Line2D &line: lines)
     {
         line.p1.x = line.p1.x * scale_factor + d_x;
         line.p1.y = line.p1.y * scale_factor + d_y;
@@ -112,7 +112,7 @@ void gengine::Draw2DLSystem::applyReplacement()
     {
         std::string full_string;
 
-        for (auto c: full_replacement)
+        for (char c: full_replacement)
         {
             switch (c)
             {
@@ -145,7 +145,7 @@ const img::EasyImage &gengine::Draw2DLSystem::drawLSystem()
     full_replacement = l_system.get_initiator();
     applyReplacement();
 
-    for (auto c: full_replacement)
+    for (char c: full_replacement)
     {
         switch (c)
         {
@@ -166,7 +166,7 @@ const img::EasyImage &gengine::Draw2DLSystem::drawLSystem()
         }
         case ')':
         {
-            auto position = stackedPositions.top();
+            std::pair<Point2D, double> position = stackedPositions.top();
             stackedPositions.pop();
             currentPosition = position.first;
             currentAngle = position.second;

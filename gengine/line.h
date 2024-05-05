@@ -18,8 +18,8 @@ namespace gengine
 
 struct OuterMostPixels
 {
-	Point2D min;
-	Point2D max;
+    Point2D min;
+    Point2D max;
 };
 
 void calculate_outer_most_pixels(const Lines2D &lines, OuterMostPixels *pixels);
@@ -28,77 +28,81 @@ void calculate_outer_most_pixels(const Lines2D &lines, OuterMostPixels *pixels);
 class Draw2DLSystem
 {
 public:
-	Draw2DLSystem(const ini::Section &generalConfig, const ini::Section &LSystem2DConfig);
-	virtual ~Draw2DLSystem();
+    Draw2DLSystem(const ini::Section &generalConfig, const ini::Section &LSystem2DConfig);
 
-	static img::EasyImage draw2DLines(const Lines2D &lines, int size, Color backgroundColor)
-	{
-		OuterMostPixels outer_most_pixels;
-		calculate_outer_most_pixels(lines, &outer_most_pixels);
-		double x_range = outer_most_pixels.max.x - outer_most_pixels.min.x;
-		double y_range = outer_most_pixels.max.y - outer_most_pixels.min.y;
-		double image_x = size * (x_range / std::fmax(x_range, y_range));
-		double image_y = size * (y_range / std::fmax(x_range, y_range));
+    virtual ~Draw2DLSystem();
 
-		auto image = img::EasyImage(std::lround(image_x), std::lround(image_y), backgroundColor.to_img_color());
+    static img::EasyImage draw2DLines(const Lines2D &lines, int size, Color backgroundColor)
+    {
+        OuterMostPixels outer_most_pixels;
+        calculate_outer_most_pixels(lines, &outer_most_pixels);
+        double x_range = outer_most_pixels.max.x - outer_most_pixels.min.x;
+        double y_range = outer_most_pixels.max.y - outer_most_pixels.min.y;
+        double image_x = size * (x_range / std::fmax(x_range, y_range));
+        double image_y = size * (y_range / std::fmax(x_range, y_range));
 
-		double scale_factor = 0.95 * (image_x / x_range);
-		double DC_x = scale_factor * (outer_most_pixels.min.x + outer_most_pixels.max.x) / 2;
-		double DC_y = scale_factor * (outer_most_pixels.min.y + outer_most_pixels.max.y) / 2;
-		double d_x = (image_x / 2) - DC_x;
-		double d_y = (image_y / 2) - DC_y;
+        img::EasyImage image = img::EasyImage(std::lround(image_x), std::lround(image_y),
+                                              backgroundColor.to_img_color());
 
-		for (auto &line : lines)
-		{
-			image.draw_line(std::lround(line.p1.x * scale_factor + d_x), std::lround(line.p1.y * scale_factor + d_y),
-			                 std::lround(line.p2.x * scale_factor + d_x), std::lround(line.p2.y * scale_factor + d_y),
-							 line.color.to_img_color());
-		}
-		return image;
-	}
+        double scale_factor = 0.95 * (image_x / x_range);
+        double DC_x = scale_factor * (outer_most_pixels.min.x + outer_most_pixels.max.x) / 2;
+        double DC_y = scale_factor * (outer_most_pixels.min.y + outer_most_pixels.max.y) / 2;
+        double d_x = (image_x / 2) - DC_x;
+        double d_y = (image_y / 2) - DC_y;
 
-	static img::EasyImage drawZBuf2DLines(ZBuffer &zbuffer, const Lines2D &lines, int size, Color backgroundColor)
-	{
-		OuterMostPixels outer_most_pixels;
-		calculate_outer_most_pixels(lines, &outer_most_pixels);
-		double x_range = outer_most_pixels.max.x - outer_most_pixels.min.x;
-		double y_range = outer_most_pixels.max.y - outer_most_pixels.min.y;
-		double image_x = size * (x_range / std::fmax(x_range, y_range));
-		double image_y = size * (y_range / std::fmax(x_range, y_range));
+        for (const Line2D &line: lines)
+        {
+            image.draw_line(std::lround(line.p1.x * scale_factor + d_x), std::lround(line.p1.y * scale_factor + d_y),
+                            std::lround(line.p2.x * scale_factor + d_x), std::lround(line.p2.y * scale_factor + d_y),
+                            line.color.to_img_color());
+        }
+        return image;
+    }
 
-		auto image = img::EasyImage(std::lround(image_x), std::lround(image_y), backgroundColor.to_img_color());
-		zbuffer = ZBuffer(image.get_width(), image.get_height());
+    static img::EasyImage drawZBuf2DLines(ZBuffer &zbuffer, const Lines2D &lines, int size, Color backgroundColor)
+    {
+        OuterMostPixels outer_most_pixels;
+        calculate_outer_most_pixels(lines, &outer_most_pixels);
+        double x_range = outer_most_pixels.max.x - outer_most_pixels.min.x;
+        double y_range = outer_most_pixels.max.y - outer_most_pixels.min.y;
+        double image_x = size * (x_range / std::fmax(x_range, y_range));
+        double image_y = size * (y_range / std::fmax(x_range, y_range));
 
-		double scale_factor = 0.95 * (image_x / x_range);
-		double DC_x = scale_factor * (outer_most_pixels.min.x + outer_most_pixels.max.x) / 2;
-		double DC_y = scale_factor * (outer_most_pixels.min.y + outer_most_pixels.max.y) / 2;
-		double d_x = (image_x / 2) - DC_x;
-		double d_y = (image_y / 2) - DC_y;
+        auto image = img::EasyImage(std::lround(image_x), std::lround(image_y), backgroundColor.to_img_color());
+        zbuffer = ZBuffer(image.get_width(), image.get_height());
 
-		for (auto &line : lines)
-		{
-			zbuffer.draw_zbuf_line(
-					image,
-					line.p1.x * scale_factor + d_x, line.p1.y * scale_factor + d_y, line.z1,
-					line.p2.x * scale_factor + d_x, line.p2.y * scale_factor + d_y, line.z1,
-					line.color.to_img_color());
-		}
-		return image;
-	}
+        double scale_factor = 0.95 * (image_x / x_range);
+        double DC_x = scale_factor * (outer_most_pixels.min.x + outer_most_pixels.max.x) / 2;
+        double DC_y = scale_factor * (outer_most_pixels.min.y + outer_most_pixels.max.y) / 2;
+        double d_x = (image_x / 2) - DC_x;
+        double d_y = (image_y / 2) - DC_y;
 
-	void draw2DLines();
-	const img::EasyImage &drawLSystem();
-	void applyReplacement();
+        for (auto &line: lines)
+        {
+            zbuffer.draw_zbuf_line(
+                    image,
+                    line.p1.x * scale_factor + d_x, line.p1.y * scale_factor + d_y, line.z1,
+                    line.p2.x * scale_factor + d_x, line.p2.y * scale_factor + d_y, line.z1,
+                    line.color.to_img_color());
+        }
+        return image;
+    }
+
+    void draw2DLines();
+
+    const img::EasyImage &drawLSystem();
+
+    void applyReplacement();
 
 private:
-	img::EasyImage* image = nullptr;
-	Lines2D lines;
-	std::string full_replacement;
-	LParser::LSystem2D l_system;
+    img::EasyImage *image = nullptr;
+    Lines2D lines;
+    std::string full_replacement;
+    LParser::LSystem2D l_system;
 
-	int size = 0;
-	Color backgroundColor;
-	Color linesColor;
+    int size = 0;
+    Color backgroundColor;
+    Color linesColor;
 };
 
 }

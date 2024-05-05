@@ -35,6 +35,10 @@ Figure createTorus(double r, double R, int n, int m);
 
 }
 
+Figure createBuckyBall();
+
+Figure createMengerSponge();
+
 Figure create3DLSystem(const ini::Section &LSystem3DConfig);
 
 }
