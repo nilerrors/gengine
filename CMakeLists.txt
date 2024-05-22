@@ -6,7 +6,7 @@ project(engine)
 # Set compiler flags
 ############################################################
 # If supported by your compiler, you can add the -Wall, -Wextra, –fstack-protector-all and -g3 flags here.
-set(OWN_GXX_FLAGS "-std=c++14 -Wall -Wextra -Werror -Wpedantic")
+set(OWN_GXX_FLAGS "-std=c++14 -Wextra -Werror -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${OWN_GXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OWN_GXX_FLAGS}")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${OWN_GXX_FLAGS}")
@@ -20,13 +20,14 @@ set(engine_sources
 		lib/ini_configuration.cc
 		lib/l_parser.cc
 		lib/vector3d.cc
-		gengine/line.cpp
+		gengine/l_systems2d.cpp
 		gengine/utils.cpp
-		gengine/line3d.cpp
+		gengine/wireframes.cpp
 		gengine/figures3d.cpp
 		gengine/zbuffer.cpp
-		gengine/zbufwireframe.cpp
-		gengine/zbuffering.cpp
+		gengine/wireframezbuf.cpp
+		gengine/wireframeszbuftri.cpp
+		gengine/wireframeszbuflight.cpp
 )
 
 ############################################################

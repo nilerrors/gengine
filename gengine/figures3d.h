@@ -6,7 +6,7 @@
 #define ENGINE_FIGURES3D_H
 
 #include "../lib/ini_configuration.h"
-#include "utils.h"
+#include "figure.h"
 #include "figures3d.h"
 
 namespace gengine

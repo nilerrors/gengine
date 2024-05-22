@@ -5,9 +5,11 @@
 #include <cmath>
 #include <functional>
 #include "zbuffer.h"
-#include "zbuffering.h"
-#include "zbufwireframe.h"
+#include "wireframeszbuftri.h"
+#include "wireframezbuf.h"
 #include "utils.h"
+#include "light.h"
+#include "wireframeszbuflight.h"
 
 namespace gengine
 {
@@ -127,9 +129,10 @@ void ZBuffer::draw_zbuf_line(
 
 void ZBuffer::draw_zbuf_triag(
         img::EasyImage &image,
-        const Vector3D &A, const Vector3D &B, const Vector3D &C,
+        Vector3D const &A, Vector3D const &B, Vector3D const &C,
         double d, double dx, double dy,
-        const img::Color &color)
+        const Color &ambient, const Color &diffuse, const Color &specular,
+        double reflectionCoeff, Lights3D const &lights)
 {
     double az = 0.0;
     double bz = 0.0;
@@ -155,9 +158,36 @@ void ZBuffer::draw_zbuf_triag(
     double dzdx = w1 / (-d * k);
     double dzdy = w2 / (-d * k);
 
-
     long ymin = std::lround(std::min(std::min(a.y, b.y), c.y) + 0.5);
     long ymax = std::lround(std::max(std::max(a.y, b.y), c.y) - 0.5);
+
+    Color triangle_color = Color();
+
+    if (lighted)
+    {
+        for (Light *light: lights)
+        {
+            triangle_color.red += light->ambientLight.red * ambient.red;
+            triangle_color.green += light->ambientLight.green * ambient.green;
+            triangle_color.blue += light->ambientLight.blue * ambient.blue;
+
+            if (light->type == Light::Type::Inf)
+            {
+                Vector3D l = light->ldVector * (-1);
+                l.normalise();
+
+                double dot = Vector3D::dot(normal, l);
+                if (dot < 0)
+                {
+                    dot = 0;
+                }
+                triangle_color.red += light->diffuseLight.red * diffuse.red * dot;
+                triangle_color.green += light->diffuseLight.green * diffuse.green * dot;
+                triangle_color.blue += light->diffuseLight.blue * diffuse.blue * dot;
+            }
+        }
+    }
+
 
     for (long y = ymin; y <= ymax; y++)
     {
@@ -173,7 +203,19 @@ void ZBuffer::draw_zbuf_triag(
             if (z < ati(x, y))
             {
                 seti(x, y, z);
-                image(x, y) = color;
+                if (!lighted)
+                {
+                    image(x, y) = ambient.to_img_color();
+                    continue;
+                }
+
+                Color pixel_color = triangle_color;
+                for (Light *light: lights)
+                {
+                    LightedZBuffering::applyLight(light, diffuse, specular, reflectionCoeff, &pixel_color,
+                                                  normal, y, x, dx, dy, d, 1.0 / z);
+                }
+                image(x, y) = pixel_color.to_img_color();
             }
         }
     }

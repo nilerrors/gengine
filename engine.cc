@@ -4,10 +4,11 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "gengine/line.h"
-#include "gengine/line3d.h"
-#include "gengine/zbufwireframe.h"
-#include "gengine/zbuffering.h"
+#include "gengine/l_systems2d.h"
+#include "gengine/wireframes.h"
+#include "gengine/wireframezbuf.h"
+#include "gengine/wireframeszbuftri.h"
+#include "gengine/wireframeszbuflight.h"
 
 using namespace gengine;
 
@@ -33,6 +34,15 @@ img::EasyImage generate_image(const ini::Configuration &configuration)
     else if (imageType == "ZBuffering")
     {
         image = ZBuffering(configuration).drawWireframe();
+    }
+    else if (imageType == "LightedZBuffering")
+    {
+        image = LightedZBuffering(configuration).drawWireframe();
+    }
+    else
+    {
+        std::cerr << "Unknown image type: " << imageType << std::endl;
+        exit(1);
     }
 
     return image;
