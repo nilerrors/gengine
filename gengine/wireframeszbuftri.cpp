@@ -45,6 +45,7 @@ const img::EasyImage &ZBuffering::drawWireframe()
 
     image = img::EasyImage(std::lround(image_x), std::lround(image_y), backgroundColor.to_img_color());
     zBuffer = ZBuffer(image.get_width(), image.get_height());
+    zBuffer.set_lighted(lighted);
 
     double scale_factor = 0.95 * (image_x / x_range);
     double DC_x = scale_factor * (outer_most_pixels.min.x + outer_most_pixels.max.x) / 2;

@@ -35,30 +35,21 @@ void LightedZBuffering::addLightFromConfig(const ini::Section &config)
     light->ambientLight = Color(config["ambientLight"].as_double_tuple_or_die());
 
     std::vector<double> diffuse;
+    std::vector<double> specular;
+    bool diffuse_or_specular = false;
     if (config["diffuseLight"].as_double_tuple_if_exists(diffuse))
     {
         light->diffuseLight = Color(diffuse);
-        if (config["infinity"].as_bool_or_die())
-        {
-            light->ldVector = Vector3D::vector(config["direction"].as_double_tuple_or_die()[0],
-                                               config["direction"].as_double_tuple_or_die()[1],
-                                               config["direction"].as_double_tuple_or_die()[2]);
-        }
-        else
-        {
-            light->type = Light::Type::Point;
-            light->location = Vector3D::vector(config["location"].as_double_tuple_or_die()[0],
-                                               config["location"].as_double_tuple_or_die()[1],
-                                               config["location"].as_double_tuple_or_die()[2]);
-            light->spotAngle = degToRad(config["spotAngle"].as_double_or_die());
-        }
-        light->eyePointMultiply(eyePoint);
+        diffuse_or_specular = true;
+    }
+    if (config["specularLight"].as_double_tuple_if_exists(specular))
+    {
+        light->specularLight = Color(specular);
+        diffuse_or_specular = true;
     }
 
-    std::vector<double> specular;
-    if (config["specularLight"].as_double_tuple_if_exists(diffuse))
+    if (diffuse_or_specular)
     {
-        light->specularLight = Color(diffuse);
         if (config["infinity"].as_bool_or_die())
         {
             light->ldVector = Vector3D::vector(config["direction"].as_double_tuple_or_die()[0],
@@ -68,10 +59,10 @@ void LightedZBuffering::addLightFromConfig(const ini::Section &config)
         else
         {
             light->type = Light::Type::Point;
-            light->location = Vector3D::vector(config["location"].as_double_tuple_or_die()[0],
+            light->location = Vector3D::point(config["location"].as_double_tuple_or_die()[0],
                                                config["location"].as_double_tuple_or_die()[1],
                                                config["location"].as_double_tuple_or_die()[2]);
-            light->spotAngle = degToRad(config["spotAngle"].as_double_or_die());
+            light->spotAngle = degToRad(config["spotAngle"].as_double_or_default(90));
         }
         light->eyePointMultiply(eyePoint);
     }
@@ -82,16 +73,14 @@ void LightedZBuffering::addLightFromConfig(const ini::Section &config)
 void LightedZBuffering::applyLight(
         Light *light,
         const Color &diffuse, const Color &specular,
-        double reflectionCoeff, Color *pixel_color, Vector3D normal,
-        long y, long x, double dx, double dy, double d, double inverted_z)
+        double reflectionCoeff, Color *pixel_color, const Vector3D &normal,
+        double x, double y, double dx, double dy, double d, double inverted_z)
 {
-    double px = (x - dx) * (-inverted_z) / d;
-    double py = (y - dy) * (-inverted_z) / d;
-    double pz = inverted_z;
-    Vector3D p = Vector3D::point(px, py, pz);
+    Vector3D p = Vector3D::point(((double) x - dx) * (-inverted_z) / d, ((double) y - dy) * (-inverted_z) / d,
+                                 inverted_z);
 
     Vector3D l;
-    double dot = 0;
+    double dot;
     if (light->type == Light::Type::Inf)
     {
         l = light->ldVector * (-1);

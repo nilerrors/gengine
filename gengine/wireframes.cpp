@@ -81,9 +81,9 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
         for (int i = 0; i < nrLines; i++)
         {
             const std::string line = "line" + std::to_string(i);
-            figure->faces.push_back(Face(
+            figure->faces.emplace_back(
                     section[line].as_int_tuple_or_die()[0],
-                    section[line].as_int_tuple_or_die()[1]));
+                    section[line].as_int_tuple_or_die()[1]);
         }
     }
     else if (type == "3DLSystem")
@@ -135,7 +135,7 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
         static bool buckyBallWarned = false;
         if (!buckyBallWarned)
         {
-            std::cerr << "BuckyBall is not implemented yet" << std::endl;
+            std::cerr << "BuckyBall is not implemented, an icosahedron is generated instead." << std::endl;
             buckyBallWarned = true;
         }
         *figure = createBuckyBall();
@@ -145,7 +145,7 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
         static bool mengerSpongeWarned = false;
         if (!mengerSpongeWarned)
         {
-            std::cerr << "MengerSponge is not implemented yet" << std::endl;
+            std::cerr << "MengerSponge is not implemented, a cube is generated instead." << std::endl;
             mengerSpongeWarned = true;
         }
         *figure = createMengerSponge();
@@ -167,6 +167,11 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
         for (Figure *fig: fractal_figures)
         {
             fig->ambientReflection = color;
+            if (lighted)
+            {
+                fig->diffuseReflection = Color(section["diffuseReflection"].as_double_tuple_or_default({0, 0, 0}));
+                fig->specularReflection = Color(section["specularReflection"].as_double_tuple_or_default({0, 0, 0}));
+            }
             Matrix transformation =
                     scaleFigure(scale)
                     * rotateX(rotX) * rotateY(rotY) * rotateZ(rotZ)
@@ -180,6 +185,12 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
     }
 
     figure->ambientReflection = color;
+    if (lighted)
+    {
+        figure->diffuseReflection = Color(section["diffuseReflection"].as_double_tuple_or_default({0, 0, 0}));
+        figure->specularReflection = Color(section["specularReflection"].as_double_tuple_or_default({0, 0, 0}));
+    }
+
     Matrix transformation =
             scaleFigure(scale)
             * rotateX(rotX) * rotateY(rotY) * rotateZ(rotZ)

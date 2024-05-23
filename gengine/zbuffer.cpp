@@ -38,7 +38,8 @@ void ZBuffer::draw_zbuf_line(
         long i = a;
         for (uint j = y_min; j <= y_max; j++)
         {
-            double z = (((double) i / (double) a) / z0) + ((1 - ((double) i / (double) a)) / z1);
+            double ia = (double) i / (double) a;
+            double z = (ia / z0) + ((1 - ia) / z1);
 
             if (z < ati(x0, j))
             {
@@ -55,7 +56,8 @@ void ZBuffer::draw_zbuf_line(
         long i = a;
         for (uint j = x_min; j <= x_max; j++)
         {
-            double z = (((double) i / (double) a) / z0) + ((1.0 - ((double) i / (double) a)) / z1);
+            double ia = (double) i / (double) a;
+            double z = (ia / z0) + ((1.0 - ia) / z1);
 
             if (z < ati(j, y0))
             {
@@ -82,7 +84,8 @@ void ZBuffer::draw_zbuf_line(
             long i = a;
             for (uint j = 0; j <= (x1 - x0); j++)
             {
-                double z = (((double) i / (double) a) / z0) + ((1 - ((double) i / (double) a)) / z1);
+                double ia = (double) i / (double) a;
+                double z = (ia / z0) + ((1 - ia) / z1);
 
                 if (z < ati(x0 + j, (uint) std::round(y0 + m * j)))
                 {
@@ -98,7 +101,8 @@ void ZBuffer::draw_zbuf_line(
             long i = a;
             for (uint j = 0; j <= (y1 - y0); j++)
             {
-                double z = (((double) i / (double) a) / z0) + ((1 - ((double) i / (double) a)) / z1);
+                double ia = (double) i / (double) a;
+                double z = (ia / z0) + ((1 - ia) / z1);
 
                 if (z < ati((uint) std::round(x0 + (j / m)), y0 + j))
                 {
@@ -114,7 +118,8 @@ void ZBuffer::draw_zbuf_line(
             long i = a;
             for (uint j = 0; j <= (y0 - y1); j++)
             {
-                double z = (((double) i / (double) a) / z0) + ((1 - ((double) i / (double) a)) / z1);
+                double ia = (double) i / (double) a;
+                double z = (ia / z0) + ((1 - ia) / z1);
 
                 if (z < ati((uint) std::round(x0 - (j / m)), y0 - j))
                 {
@@ -145,9 +150,7 @@ void ZBuffer::draw_zbuf_triag(
                                  (1.0 / (3.0 * A.z)) + (1.0 / (3.0 * B.z)) + (1.0 / (3.0 * C.z)));
 
 
-    Vector3D u = B - A;
-    Vector3D v = C - A;
-    Vector3D normal = Vector3D::cross(u, v);
+    Vector3D normal = Vector3D::cross(B - A, C - A);
     normal.normalise();
 
     double w1 = normal.x;
@@ -173,7 +176,7 @@ void ZBuffer::draw_zbuf_triag(
 
             if (light->type == Light::Type::Inf)
             {
-                Vector3D l = light->ldVector * (-1);
+                Vector3D l = -1 * light->ldVector;
                 l.normalise();
 
                 double dot = Vector3D::dot(normal, l);
@@ -187,7 +190,6 @@ void ZBuffer::draw_zbuf_triag(
             }
         }
     }
-
 
     for (long y = ymin; y <= ymax; y++)
     {
@@ -212,8 +214,8 @@ void ZBuffer::draw_zbuf_triag(
                 Color pixel_color = triangle_color;
                 for (Light *light: lights)
                 {
-                    LightedZBuffering::applyLight(light, diffuse, specular, reflectionCoeff, &pixel_color,
-                                                  normal, y, x, dx, dy, d, 1.0 / z);
+                    LightedZBuffering::applyLight(
+                            light, diffuse, specular, reflectionCoeff, &pixel_color, normal, x, y, dx, dy, d, 1.0 / z);
                 }
                 image(x, y) = pixel_color.to_img_color();
             }

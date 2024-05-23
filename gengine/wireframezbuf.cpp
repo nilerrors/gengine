@@ -20,7 +20,6 @@ const Lines2D &ZBufferedWireframe::doProjection()
 {
     for (auto &figure: figures)
     {
-        // for now, we assume that there are exactly 2 points in a face
         double d = 1;
         for (auto &face: figure->faces)
         {

@@ -10,9 +10,6 @@
 #include "gengine/wireframeszbuftri.h"
 #include "gengine/wireframeszbuflight.h"
 
-using namespace gengine;
-
-
 img::EasyImage generate_image(const ini::Configuration &configuration)
 {
     const std::string imageType = configuration["General"]["type"].as_string_or_die();
@@ -21,23 +18,23 @@ img::EasyImage generate_image(const ini::Configuration &configuration)
 
     if (imageType == "2DLSystem")
     {
-        image = Draw2DLSystem(configuration["General"], configuration["2DLSystem"]).drawLSystem();
+        image = gengine::Draw2DLSystem(configuration["General"], configuration["2DLSystem"]).drawLSystem();
     }
     else if (imageType == "Wireframe")
     {
-        image = Wireframe(configuration).drawWireframe();
+        image = gengine::Wireframe(configuration).drawWireframe();
     }
     else if (imageType == "ZBufferedWireframe")
     {
-        image = ZBufferedWireframe(configuration).drawWireframe();
+        image = gengine::ZBufferedWireframe(configuration).drawWireframe();
     }
     else if (imageType == "ZBuffering")
     {
-        image = ZBuffering(configuration).drawWireframe();
+        image = gengine::ZBuffering(configuration).drawWireframe();
     }
     else if (imageType == "LightedZBuffering")
     {
-        image = LightedZBuffering(configuration).drawWireframe();
+        image = gengine::LightedZBuffering(configuration).drawWireframe();
     }
     else
     {

@@ -19,42 +19,26 @@ Figure gengine::Platonic::createCube()
     //  1 −1 1 −1  1 −1  1 −1
     // −1  1 1 −1  1 −1 −1  1
     // −1 −1 1  1 −1 −1  1  1
-    Vector3D point1 = Vector3D::point(1, -1, -1);
-    Vector3D point2 = Vector3D::point(-1, 1, -1);
-    Vector3D point3 = Vector3D::point(1, 1, 1);
-    Vector3D point4 = Vector3D::point(-1, -1, 1);
-    Vector3D point5 = Vector3D::point(1, 1, -1);
-    Vector3D point6 = Vector3D::point(-1, -1, -1);
-    Vector3D point7 = Vector3D::point(1, -1, 1);
-    Vector3D point8 = Vector3D::point(-1, 1, 1);
-
-    cube.points.push_back(point1);
-    cube.points.push_back(point2);
-    cube.points.push_back(point3);
-    cube.points.push_back(point4);
-    cube.points.push_back(point5);
-    cube.points.push_back(point6);
-    cube.points.push_back(point7);
-    cube.points.push_back(point8);
+    cube.points.emplace_back(Vector3D::point(1, -1, -1));
+    cube.points.emplace_back(Vector3D::point(-1, 1, -1));
+    cube.points.emplace_back(Vector3D::point(1, 1, 1));
+    cube.points.emplace_back(Vector3D::point(-1, -1, 1));
+    cube.points.emplace_back(Vector3D::point(1, 1, -1));
+    cube.points.emplace_back(Vector3D::point(-1, -1, -1));
+    cube.points.emplace_back(Vector3D::point(1, -1, 1));
+    cube.points.emplace_back(Vector3D::point(-1, 1, 1));
 
     // 1 5 2 6 7 1
     // 5 2 6 1 3 6
     // 3 8 4 7 8 2
     // 7 3 8 4 4 5
     // the indices in the course are 1-based, so we need to subtract 1
-    Face rectangle1({0, 4, 2, 6});
-    Face rectangle2({4, 1, 7, 2});
-    Face rectangle3({1, 5, 3, 7});
-    Face rectangle4({5, 0, 6, 3});
-    Face rectangle5({6, 2, 7, 3});
-    Face rectangle6({0, 5, 1, 4});
-
-    cube.faces.push_back(rectangle1);
-    cube.faces.push_back(rectangle2);
-    cube.faces.push_back(rectangle3);
-    cube.faces.push_back(rectangle4);
-    cube.faces.push_back(rectangle5);
-    cube.faces.push_back(rectangle6);
+    cube.faces.push_back(Face({0, 4, 2, 6}));
+    cube.faces.push_back(Face({4, 1, 7, 2}));
+    cube.faces.push_back(Face({1, 5, 3, 7}));
+    cube.faces.push_back(Face({5, 0, 6, 3}));
+    cube.faces.push_back(Face({6, 2, 7, 3}));
+    cube.faces.push_back(Face({0, 5, 1, 4}));
 
     return cube;
 }
@@ -66,29 +50,19 @@ Figure gengine::Platonic::createTetrahedron()
     //  1 −1 1 −1
     // −1  1 1 −1
     // −1 −1 1  1
-    Vector3D point1 = Vector3D::point(1, -1, -1);
-    Vector3D point2 = Vector3D::point(-1, 1, -1);
-    Vector3D point3 = Vector3D::point(1, 1, 1);
-    Vector3D point4 = Vector3D::point(-1, -1, 1);
-
-    tetrahedron.points.push_back(point1);
-    tetrahedron.points.push_back(point2);
-    tetrahedron.points.push_back(point3);
-    tetrahedron.points.push_back(point4);
+    tetrahedron.points.emplace_back(Vector3D::point(1, -1, -1));
+    tetrahedron.points.emplace_back(Vector3D::point(-1, 1, -1));
+    tetrahedron.points.emplace_back(Vector3D::point(1, 1, 1));
+    tetrahedron.points.emplace_back(Vector3D::point(-1, -1, 1));
 
     // 1 2 1 1
     // 2 4 4 3
     // 3 3 2 4
     // the indices in the course are 1-based, so we need to subtract 1
-    Face triangle1({0, 1, 2});
-    Face triangle2({1, 3, 3});
-    Face triangle3({0, 3, 1});
-    Face triangle4({0, 2, 3});
-
-    tetrahedron.faces.push_back(triangle1);
-    tetrahedron.faces.push_back(triangle2);
-    tetrahedron.faces.push_back(triangle3);
-    tetrahedron.faces.push_back(triangle4);
+    tetrahedron.faces.push_back(Face({0, 1, 2}));
+    tetrahedron.faces.push_back(Face({1, 3, 2}));
+    tetrahedron.faces.push_back(Face({0, 3, 1}));
+    tetrahedron.faces.push_back(Face({0, 2, 3}));
 
     return tetrahedron;
 }
@@ -100,41 +74,25 @@ Figure gengine::Platonic::createOctahedron()
     // 1 0 −1  0  0 0
     // 0 1  0 −1  0 0
     // 0 0  0  0 −1 1
-    Vector3D point1 = Vector3D::point(1, 0, 0);
-    Vector3D point2 = Vector3D::point(0, 1, 0);
-    Vector3D point3 = Vector3D::point(-1, 0, 0);
-    Vector3D point4 = Vector3D::point(0, -1, 0);
-    Vector3D point5 = Vector3D::point(0, 0, -1);
-    Vector3D point6 = Vector3D::point(0, 0, 1);
-
-    octahedron.points.push_back(point1);
-    octahedron.points.push_back(point2);
-    octahedron.points.push_back(point3);
-    octahedron.points.push_back(point4);
-    octahedron.points.push_back(point5);
-    octahedron.points.push_back(point6);
+    octahedron.points.emplace_back(Vector3D::point(1, 0, 0));
+    octahedron.points.emplace_back(Vector3D::point(0, 1, 0));
+    octahedron.points.emplace_back(Vector3D::point(-1, 0, 0));
+    octahedron.points.emplace_back(Vector3D::point(0, -1, 0));
+    octahedron.points.emplace_back(Vector3D::point(0, 0, -1));
+    octahedron.points.emplace_back(Vector3D::point(0, 0, 1));
 
     // 1 2 3 4 2 3 4 1
     // 2 3 4 1 1 2 3 4
     // 6 6 6 6 5 5 5 5
     // the indices in the course are 1-based, so we need to subtract 1
-    Face triangle1({0, 1, 5});
-    Face triangle2({1, 2, 5});
-    Face triangle3({2, 3, 5});
-    Face triangle4({3, 0, 5});
-    Face triangle5({1, 0, 4});
-    Face triangle6({2, 1, 4});
-    Face triangle7({3, 2, 4});
-    Face triangle8({0, 3, 4});
-
-    octahedron.faces.push_back(triangle1);
-    octahedron.faces.push_back(triangle2);
-    octahedron.faces.push_back(triangle3);
-    octahedron.faces.push_back(triangle4);
-    octahedron.faces.push_back(triangle5);
-    octahedron.faces.push_back(triangle6);
-    octahedron.faces.push_back(triangle7);
-    octahedron.faces.push_back(triangle8);
+    octahedron.faces.push_back(Face({0, 1, 5}));
+    octahedron.faces.push_back(Face({1, 2, 5}));
+    octahedron.faces.push_back(Face({2, 3, 5}));
+    octahedron.faces.push_back(Face({3, 0, 5}));
+    octahedron.faces.push_back(Face({1, 0, 4}));
+    octahedron.faces.push_back(Face({2, 1, 4}));
+    octahedron.faces.push_back(Face({3, 2, 4}));
+    octahedron.faces.push_back(Face({0, 3, 4}));
 
     return octahedron;
 }
@@ -255,13 +213,11 @@ Figure gengine::Platonic::createCone(const int n, const double height)
     for (int i = 0; i <= n; i++)
     {
         double angle = 2 * PI * i / n;
-        Vector3D point = Vector3D::point(r * std::cos(angle), r * std::sin(angle), 0);
-        cone.points.push_back(point);
+        cone.points.push_back(Vector3D::point(r * std::cos(angle), r * std::sin(angle), 0));
     }
     for (int i = 0; i <= n; i++)
     {
-        Face triangle({0, (i + 1) % n + 1, i + 1});
-        cone.faces.push_back(triangle);
+        cone.faces.push_back(Face({(i + 1) % n + 1, 0, i + 1}));
     }
 
     Face bottom;
@@ -279,41 +235,33 @@ Figure gengine::Platonic::createCylinder(const int n, const double height)
 {
     Figure cylinder;
 
-    for (int i = 0; i <= n; i++)
+    for (int i = 0; i < n; i++)
     {
         double angle = 2 * PI * i / n;
-        Vector3D point1 = Vector3D::point(std::cos(angle), std::sin(angle), 0);
-        Vector3D point2 = Vector3D::point(std::cos(angle), std::sin(angle), height);
-        cylinder.points.push_back(point1);
-        cylinder.points.push_back(point2);
+        cylinder.points.push_back(Vector3D::point(std::cos(angle), std::sin(angle), 0));
+    }
+    for (int i = 0; i < n; i++)
+    {
+        double angle = 2 * PI * i / n;
+        cylinder.points.push_back(Vector3D::point(std::cos(angle), std::sin(angle), height));
     }
 
-    for (int i = 0; i <= n; i++)
+    for (int i = 0; i < n; i++)
     {
-        Face rectangle({2 * i,
-                        2 * i + 1,
-                        (2 * (i + 1)) % (2 * n) + 1,
-                        (2 * (i + 1)) % (2 * n)});
-        cylinder.faces.push_back(rectangle);
+        cylinder.faces.push_back(Face({i, (i + 1) % n, n + (i + 1) % n, n + i}));
     }
 
     Face bottom;
-    for (int i = 0; i < 2 * n; i++)
+    for (int i = 0; i < n; i++)
     {
-        if (i % 2 == 0)
-        {
-            bottom.point_indexes.push_back(i);
-        }
+        bottom.point_indexes.push_back(i);
     }
     cylinder.faces.push_back(bottom);
 
     Face top;
-    for (int i = 0; i < 2 * n; i++)
+    for (int i = n; i < 2 * n; i++)
     {
-        if (i % 2 == 1)
-        {
-            top.point_indexes.push_back(i);
-        }
+        top.point_indexes.push_back(i);
     }
     cylinder.faces.push_back(top);
 
@@ -388,15 +336,13 @@ Figure gengine::Platonic::createTorus(const double r, const double R, const int 
 
     for (int i = 0; i < n; i++)
     {
-        double angle1 = 2 * PI * i / n;
+        double u = 2 * PI * i / n;
         for (int j = 0; j < m; j++)
         {
-            double angle2 = 2 * PI * j / m;
-            Vector3D point = Vector3D::point(
-                    (R + r * std::cos(angle2)) * std::cos(angle1),
-                    (R + r * std::cos(angle2)) * std::sin(angle1),
-                    r * std::sin(angle2));
-            torus.points.push_back(point);
+            double v = 2 * PI * j / m;
+            torus.points.push_back(
+                    Vector3D::point((R + r * std::cos(v)) * std::cos(u), (R + r * std::cos(v)) * std::sin(u),
+                                    r * std::sin(v)));
         }
     }
 
@@ -404,11 +350,8 @@ Figure gengine::Platonic::createTorus(const double r, const double R, const int 
     {
         for (int j = 0; j < m; j++)
         {
-            Face rectangle({i * m + j,
-                            i * m + (j + 1) % m,
-                            ((i + 1) % n) * m + (j + 1) % m,
-                            ((i + 1) % n) * m + j});
-            torus.faces.push_back(rectangle);
+            torus.faces.push_back(
+                    Face({i * m + j, ((i + 1) % n) * m + j, ((i + 1) % n) * m + ((j + 1) % m), i * m + ((j + 1) % m)}));
         }
     }
 
