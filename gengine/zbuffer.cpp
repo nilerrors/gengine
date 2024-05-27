@@ -179,11 +179,7 @@ void ZBuffer::draw_zbuf_triag(
                 Vector3D l = -1 * light->ldVector;
                 l.normalise();
 
-                double dot = Vector3D::dot(normal, l);
-                if (dot < 0)
-                {
-                    dot = 0;
-                }
+                double dot = std::max(0.0, Vector3D::dot(normal, l));
                 triangle_color.red += light->diffuseLight.red * diffuse.red * dot;
                 triangle_color.green += light->diffuseLight.green * diffuse.green * dot;
                 triangle_color.blue += light->diffuseLight.blue * diffuse.blue * dot;
@@ -214,8 +210,9 @@ void ZBuffer::draw_zbuf_triag(
                 Color pixel_color = triangle_color;
                 for (Light *light: lights)
                 {
-                    LightedZBuffering::applyLight(
-                            light, diffuse, specular, reflectionCoeff, &pixel_color, normal, x, y, dx, dy, d, 1.0 / z);
+                    LightedZBuffering::applyLighting(
+                            light, diffuse, specular, reflectionCoeff,
+                            &pixel_color, normal, (double) x, (double) y, dx, dy, d, 1.0 / z);
                 }
                 image(x, y) = pixel_color.to_img_color();
             }

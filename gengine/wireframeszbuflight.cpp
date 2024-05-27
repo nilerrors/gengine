@@ -60,8 +60,8 @@ void LightedZBuffering::addLightFromConfig(const ini::Section &config)
         {
             light->type = Light::Type::Point;
             light->location = Vector3D::point(config["location"].as_double_tuple_or_die()[0],
-                                               config["location"].as_double_tuple_or_die()[1],
-                                               config["location"].as_double_tuple_or_die()[2]);
+                                              config["location"].as_double_tuple_or_die()[1],
+                                              config["location"].as_double_tuple_or_die()[2]);
             light->spotAngle = degToRad(config["spotAngle"].as_double_or_default(90));
         }
         light->eyePointMultiply(eyePoint);
@@ -70,29 +70,28 @@ void LightedZBuffering::addLightFromConfig(const ini::Section &config)
     lights.push_back(light);
 }
 
-void LightedZBuffering::applyLight(
+void LightedZBuffering::applyLighting(
         Light *light,
         const Color &diffuse, const Color &specular,
         double reflectionCoeff, Color *pixel_color, const Vector3D &normal,
         double x, double y, double dx, double dy, double d, double inverted_z)
 {
-    Vector3D p = Vector3D::point(((double) x - dx) * (-inverted_z) / d, ((double) y - dy) * (-inverted_z) / d,
-                                 inverted_z);
+    int invz_d = -inverted_z / d;
+    Vector3D p = Vector3D::point((x - dx) * invz_d, (y - dy) * invz_d, inverted_z);
 
     Vector3D l;
     double dot;
-    if (light->type == Light::Type::Inf)
+    switch (light->type)
     {
-        l = light->ldVector * (-1);
+    case Light::Type::Inf:
+    {
+        l = -1 * light->ldVector;
         l.normalise();
 
-        dot = Vector3D::dot(normal, l);
-        if (dot < 0)
-        {
-            dot = 0;
-        }
+        dot = std::max(0.0, Vector3D::dot(normal, l));
     }
-    else
+        break;
+    case Light::Type::Point:
     {
         l = light->location - p;
         l.normalise();
@@ -102,27 +101,35 @@ void LightedZBuffering::applyLight(
         double intensity = 1.0 - ((1.0 - dot) / (1.0 - angleSpot));
         if (dot <= angleSpot)
         {
-            intensity = 0;
+            intensity = 0.0;
         }
         pixel_color->red += light->diffuseLight.red * diffuse.red * intensity;
         pixel_color->green += light->diffuseLight.green * diffuse.green * intensity;
         pixel_color->blue += light->diffuseLight.blue * diffuse.blue * intensity;
     }
-
-    Vector3D r = (2 * dot * normal) - l;
-    r.normalise();
-
-    Vector3D camera = Vector3D::point(0, 0, 0) - p;
-    camera.normalise();
-
-    double specular_dot = Vector3D::dot(r, camera);
-    if (specular_dot < 0)
-    {
-        specular_dot = 0;
+        break;
     }
-    double specular_intensity = std::pow(specular_dot, reflectionCoeff);
+
+    double specular_intensity =
+            std::pow(std::max(0.0, Vector3D::dot(Vector3D::normalise((2 * dot * normal) - l),
+                                                 Vector3D::normalise(Vector3D::point(0, 0, 0) - p))),
+                     reflectionCoeff);
 
     pixel_color->red += light->specularLight.red * specular.red * specular_intensity;
     pixel_color->green += light->specularLight.green * specular.green * specular_intensity;
     pixel_color->blue += light->specularLight.blue * specular.blue * specular_intensity;
+
+
+    if (pixel_color->red > 1.0)
+    {
+        pixel_color->red = 1.0;
+    }
+    if (pixel_color->green > 1.0)
+    {
+        pixel_color->green = 1.0;
+    }
+    if (pixel_color->blue > 1.0)
+    {
+        pixel_color->blue = 1.0;
+    }
 }

@@ -9,40 +9,37 @@
 #include "gengine/wireframezbuf.h"
 #include "gengine/wireframeszbuftri.h"
 #include "gengine/wireframeszbuflight.h"
+#include "ex00.h"
 
 img::EasyImage generate_image(const ini::Configuration &configuration)
 {
     const std::string imageType = configuration["General"]["type"].as_string_or_die();
 
-    img::EasyImage image(0, 0);
-
     if (imageType == "2DLSystem")
     {
-        image = gengine::Draw2DLSystem(configuration["General"], configuration["2DLSystem"]).drawLSystem();
+        return gengine::Draw2DLSystem(configuration["General"], configuration["2DLSystem"]).drawLSystem();
     }
     else if (imageType == "Wireframe")
     {
-        image = gengine::Wireframe(configuration).drawWireframe();
+        return gengine::Wireframe(configuration).drawWireframe();
     }
     else if (imageType == "ZBufferedWireframe")
     {
-        image = gengine::ZBufferedWireframe(configuration).drawWireframe();
+        return gengine::ZBufferedWireframe(configuration).drawWireframe();
     }
     else if (imageType == "ZBuffering")
     {
-        image = gengine::ZBuffering(configuration).drawWireframe();
+        return gengine::ZBuffering(configuration).drawWireframe();
     }
     else if (imageType == "LightedZBuffering")
     {
-        image = gengine::LightedZBuffering(configuration).drawWireframe();
+        return gengine::LightedZBuffering(configuration).drawWireframe();
     }
-    else
+    else if (imageType == "IntroColorRectangle" || imageType == "IntroBlocks" || imageType == "IntroLines")
     {
-        std::cerr << "Unknown image type: " << imageType << std::endl;
-        exit(1);
+        return ex00(configuration);
     }
-
-    return image;
+    return {};
 }
 
 int main(int argc, char const *argv[])

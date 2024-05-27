@@ -28,9 +28,9 @@ public:
     void addLightFromConfig(const ini::Section &config);
 
     static void
-    applyLight(Light *light, const Color &diffuse, const Color &specular, double reflectionCoeff,
-               Color *pixel_color, const Vector3D &normal, double x, double y, double dx, double dy, double d,
-               double inverted_z);
+    applyLighting(Light *light, const Color &diffuse, const Color &specular, double reflectionCoeff,
+                  Color *pixel_color, const Vector3D &normal, double x, double y, double dx, double dy, double d,
+                  double inverted_z);
 };
 
 

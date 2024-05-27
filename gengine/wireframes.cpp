@@ -132,23 +132,13 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
     }
     else if (type == "BuckyBall")
     {
-        static bool buckyBallWarned = false;
-        if (!buckyBallWarned)
-        {
-            std::cerr << "BuckyBall is not implemented, an icosahedron is generated instead." << std::endl;
-            buckyBallWarned = true;
-        }
-        *figure = createBuckyBall();
+        empty = true;
+        return;
     }
     else if (type == "MengerSponge")
     {
-        static bool mengerSpongeWarned = false;
-        if (!mengerSpongeWarned)
-        {
-            std::cerr << "MengerSponge is not implemented, a cube is generated instead." << std::endl;
-            mengerSpongeWarned = true;
-        }
-        *figure = createMengerSponge();
+        empty = true;
+        return;
     }
     else
     {
@@ -189,6 +179,7 @@ void Wireframe::addFigureFromConfig(const ini::Section &section)
     {
         figure->diffuseReflection = Color(section["diffuseReflection"].as_double_tuple_or_default({0, 0, 0}));
         figure->specularReflection = Color(section["specularReflection"].as_double_tuple_or_default({0, 0, 0}));
+        figure->reflectionCoefficient = section["reflectionCoefficient"].as_double_or_default(0);
     }
 
     Matrix transformation =
@@ -256,6 +247,11 @@ Point2D Wireframe::doProjection(const Vector3D &point, const double d)
 
 const img::EasyImage &Wireframe::drawWireframe()
 {
+    if (empty)
+    {
+        image = img::EasyImage();
+        return image;
+    }
     doProjection();
     image = Draw2DLSystem::draw2DLines(lines, size, backgroundColor);
     return image;

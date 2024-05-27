@@ -43,6 +43,7 @@ public:
 
 protected:
     img::EasyImage image;
+    bool empty = false;
     std::vector<Figure *> figures;
     int size;
     bool lighted = false;
